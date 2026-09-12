@@ -23,9 +23,16 @@ function friendlyAuth(message: string): string {
   if (m.includes("invalid login credentials")) return "Wrong email or password.";
   if (m.includes("already registered") || m.includes("already been registered"))
     return "That email already has an account. Sign in instead.";
+  if (m.includes("email address") && m.includes("invalid"))
+    return "That email address is not accepted. Use a real domain such as gmail.com.";
+  if (m.includes("email not confirmed"))
+    return "Check your inbox and confirm your email first.";
   if (m.includes("email rate limit") || m.includes("rate limit"))
     return "Too many attempts. Wait a minute and try again.";
-  if (m.includes("weak password")) return "That password is too weak.";
+  if (m.includes("weak password") || m.includes("password should be"))
+    return "That password is too weak. Use at least 8 characters.";
+  if (m.includes("fetch failed") || m.includes("network"))
+    return "Could not reach the server. Check your connection and try again.";
   return "We could not sign you in. Try again.";
 }
 

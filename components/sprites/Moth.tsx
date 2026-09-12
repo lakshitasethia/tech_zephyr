@@ -1,18 +1,36 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { SpriteRenderer, PixelColorMap } from "./SpriteRenderer";
 
-// Redesigned for legibility: wider wings with visible wing-shape,
-// more detail so it reads as a moth at small render size.
-const MOTH_GRID: string[] = [
-  "..W.........W..",
-  ".WW.........WW.",
-  "WWA.........AWW",
-  "WWAA.......AAWW",
-  ".WWAB.....BAWW.",
-  "..WAB.BBB.BAW..",
-  "...WA.BGB.AW...",
-  "....W.BBB.W....",
-  "......BWB......",
+// Two distinct wing poses for a real flap animation.
+// Frame 1: wings up. Frame 2: wings down.
+// Visible body segment between wings. Recognizable as moth when paused.
+
+// Wings-up pose (15x11)
+const MOTH_FRAME_UP: string[] = [
+  "..WW.......WW..",
+  ".WWAA.....AAWW.",
+  "WWWAA.....AAWWW",
+  "WWWAB.....BAWWW",
+  ".WWAB.BBB.BAWW.",
+  "..WAB.BGB.BAW..",
+  "...WA.BBB.AW...",
+  "....W..B..W....",
+  ".......B.......",
+  "......B.B......",
+  "................",
+];
+
+// Wings-down pose (15x11)
+const MOTH_FRAME_DOWN: string[] = [
+  "...............",
+  "...............",
+  "...WA.....AW...",
+  "..WWAB...BAWW..",
+  ".WWWAB.B.BAWWW.",
+  "WWWWAB.G.BAWWWW",
+  ".WWWAB.B.BAWWW.",
+  "..WWAB...BAWW..",
+  "...WA..B..AW...",
   ".......B.......",
   "......B.B......",
 ];
@@ -20,7 +38,7 @@ const MOTH_GRID: string[] = [
 const MOTH_PALETTE: PixelColorMap = {
   W: "#F2ECE2", // Cream wings
   A: "#FFC46B", // Pale amber inner wing
-  B: "#38271C", // Body
+  B: "#38271C", // Body/antennae
   G: "#F0A44C", // Spark core
 };
 
@@ -43,6 +61,24 @@ export const Moth: React.FC<MothProps> = ({
   orbitRadiusY = 32,
   duration = 6.4,
 }) => {
+  // 2-frame flap: alternate between up and down poses
+  const [frame, setFrame] = useState(0);
+
+  useEffect(() => {
+    const prefersReducedMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReducedMotion) return;
+
+    const interval = setInterval(() => {
+      setFrame((f) => (f === 0 ? 1 : 0));
+    }, 180); // ~5.5 fps flap
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const currentGrid = frame === 0 ? MOTH_FRAME_UP : MOTH_FRAME_DOWN;
+
   return (
     <div
       className={`pointer-events-none absolute ${className}`}
@@ -58,44 +94,31 @@ export const Moth: React.FC<MothProps> = ({
         .moth-orbit {
           animation: mothFigureEight ${duration}s infinite linear;
         }
-        .moth-flutter {
-          animation: mothFlutter 0.22s steps(2, jump-none) infinite alternate;
-        }
         @keyframes mothFigureEight {
           0% {
             transform: translate(0px, 0px);
           }
           25% {
-            transform: translate(${orbitRadiusX}px, -${orbitRadiusY * 0.9}px) rotate(12deg);
+            transform: translate(${orbitRadiusX}px, -${Math.abs(orbitRadiusY) * 0.9}px) rotate(12deg);
           }
           50% {
-            transform: translate(0px, -${orbitRadiusY * 1.5}px) rotate(-8deg);
+            transform: translate(0px, -${Math.abs(orbitRadiusY) * 1.5}px) rotate(-8deg);
           }
           75% {
-            transform: translate(-${orbitRadiusX * 1.1}px, -${orbitRadiusY * 0.5}px) rotate(-16deg);
+            transform: translate(-${Math.abs(orbitRadiusX) * 1.1}px, -${Math.abs(orbitRadiusY) * 0.5}px) rotate(-16deg);
           }
           100% {
             transform: translate(0px, 0px);
           }
         }
-        @keyframes mothFlutter {
-          0% {
-            transform: scaleX(1);
-          }
-          100% {
-            transform: scaleX(0.78);
-          }
-        }
       `}</style>
 
       <div className="moth-orbit">
-        <div className="moth-flutter">
-          <SpriteRenderer
-            grid={MOTH_GRID}
-            colorMap={MOTH_PALETTE}
-            scale={scale}
-          />
-        </div>
+        <SpriteRenderer
+          grid={currentGrid}
+          colorMap={MOTH_PALETTE}
+          scale={scale}
+        />
       </div>
     </div>
   );

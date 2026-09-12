@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
-import { attachMagneticHover } from "@/lib/animations/gsapSetup";
+import React, { useEffect, useState, useRef, useCallback } from "react";
+import { attachMagneticHover, smoothScrollTo } from "@/lib/animations/gsapSetup";
 
 interface NavbarProps {
   onStartQuest?: () => void;
@@ -12,6 +12,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartQuest }) => {
   const [activeSection, setActiveSection] = useState<string>("hero");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const questBtnRef = useRef<HTMLButtonElement | null>(null);
+  const navRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -54,8 +55,32 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartQuest }) => {
     { name: "ATTRIBUTES", href: "#attributes", id: "attributes" },
   ];
 
+  // Compute navbar height for offset
+  const getNavOffset = useCallback(() => {
+    if (navRef.current) {
+      return -(navRef.current.getBoundingClientRect().height + 16);
+    }
+    return -80;
+  }, []);
+
+  const handleNavClick = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+      e.preventDefault();
+      // Extract the actual section ID from the href
+      const sectionId = targetId.replace("#", "");
+      smoothScrollTo(sectionId, { offset: getNavOffset() });
+    },
+    [getNavOffset]
+  );
+
+  const handleStartQuestSmooth = useCallback(() => {
+    smoothScrollTo("how-it-works", { offset: getNavOffset() });
+    onStartQuest?.();
+  }, [getNavOffset, onStartQuest]);
+
   return (
     <header
+      ref={navRef}
       className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
         scrolled
           ? "backdrop-blur-md bg-[#0A0F1C]/70 py-3.5"
@@ -96,6 +121,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartQuest }) => {
               <a
                 key={link.name}
                 href={link.href}
+                onClick={(e) => handleNavClick(e, link.href)}
                 className={`font-micro tracking-micro nav-link-draw ${
                   isActive ? "active" : ""
                 }`}
@@ -109,7 +135,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartQuest }) => {
         {/* Right: LOG IN & START A QUEST */}
         <div className="hidden md:flex items-center gap-6">
           <a
-            href="#hero"
+            href="/login"
             className="font-micro tracking-micro text-muted hover:text-cream transition-colors duration-150 focus-visible:outline-amber"
           >
             LOG IN
@@ -117,7 +143,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartQuest }) => {
           <button
             ref={questBtnRef}
             type="button"
-            onClick={onStartQuest}
+            onClick={handleStartQuestSmooth}
             className="pixel-btn-amber"
           >
             START A QUEST
@@ -182,7 +208,13 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartQuest }) => {
             <a
               key={link.name}
               href={link.href}
-              onClick={() => setMobileMenuOpen(false)}
+              onClick={(e) => {
+                e.preventDefault();
+                setMobileMenuOpen(false);
+                const sectionId = link.href.replace("#", "");
+                // Small delay so mobile menu closes first
+                setTimeout(() => smoothScrollTo(sectionId, { offset: -80 }), 100);
+              }}
               className="font-display text-2xl text-cream hover:text-amber transition-colors"
               style={{ transitionDelay: `${idx * 50}ms` }}
             >
@@ -196,14 +228,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartQuest }) => {
             type="button"
             onClick={() => {
               setMobileMenuOpen(false);
-              onStartQuest?.();
+              setTimeout(() => smoothScrollTo("how-it-works", { offset: -80 }), 100);
             }}
             className="pixel-btn-amber w-full py-4 text-center"
           >
             START A QUEST
           </button>
           <a
-            href="#hero"
+            href="/login"
             onClick={() => setMobileMenuOpen(false)}
             className="font-micro text-center text-xs text-muted hover:text-cream py-2"
           >

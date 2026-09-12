@@ -11,7 +11,7 @@ import { Attributes } from "@/components/landing/Attributes";
 import { Campaigns } from "@/components/landing/Campaigns";
 import { FinalCTA } from "@/components/landing/FinalCTA";
 import { Footer } from "@/components/landing/Footer";
-import { initSmoothScroll, initBackgroundTransitions } from "@/lib/animations/gsapSetup";
+import { initSmoothScroll, initBackgroundTransitions, initScrollVelocitySkew } from "@/lib/animations/gsapSetup";
 
 export default function LandingPage() {
   const [preloaderDone, setPreloaderDone] = useState(false);
@@ -28,18 +28,13 @@ export default function LandingPage() {
     // Initialize Lenis smooth scroll and background palette interpolation
     const { destroy } = initSmoothScroll();
     initBackgroundTransitions();
+    const destroySkew = initScrollVelocitySkew();
 
     return () => {
       destroy();
+      destroySkew();
     };
   }, []);
-
-  const handleStartQuest = () => {
-    const target = document.getElementById("how-it-works");
-    if (target) {
-      target.scrollIntoView({ behavior: "smooth" });
-    }
-  };
 
   return (
     <main className="relative min-h-screen text-cream overflow-x-hidden selection:bg-amber selection:text-void">
@@ -48,16 +43,16 @@ export default function LandingPage() {
         <Preloader onComplete={() => setPreloaderDone(true)} />
       )}
 
-      {/* 1. Cinematic Opening (4s, skippable) */}
+      {/* 1. Cinematic Opening (5s, skippable) */}
       {preloaderDone && !cinematicDone && (
         <Cinematic onComplete={() => setCinematicDone(true)} />
       )}
 
       {/* 2. Navbar */}
-      <Navbar onStartQuest={handleStartQuest} />
+      <Navbar />
 
       {/* 3. Hero */}
-      <Hero onStartQuest={handleStartQuest} />
+      <Hero />
 
       {/* 4. How It Works (Pinned Horizontal Scroll) */}
       <HowItWorks />
@@ -72,7 +67,7 @@ export default function LandingPage() {
       <Campaigns />
 
       {/* 8. Final Call to Action */}
-      <FinalCTA onStartQuest={handleStartQuest} />
+      <FinalCTA />
 
       {/* 9. Footer */}
       <Footer />

@@ -175,7 +175,8 @@ export const HowItWorks: React.FC = () => {
     <section
       id="how-it-works"
       ref={sectionRef}
-      className="relative py-20 sm:py-24 px-6 sm:px-8 overflow-hidden"
+      tabIndex={-1}
+      className="relative py-20 sm:py-24 px-6 sm:px-8 overflow-hidden outline-none"
       aria-label="How It Works"
     >
       {/* Section Header */}
@@ -362,11 +363,13 @@ export const HowItWorks: React.FC = () => {
               >
                 {/* WARM RIGHT SIDE (FULL WIDTH BACKGROUND) */}
                 <div
-                  className="absolute inset-0 p-5 sm:p-6 flex flex-col justify-between"
+                  className="absolute inset-0 p-5 sm:p-6 flex flex-col justify-between overflow-hidden"
                   style={{
                     backgroundColor: "#2C2128",
                     backgroundImage:
                       "radial-gradient(circle at 80% 50%, rgba(240, 164, 76, 0.35) 0%, transparent 70%)",
+                    backfaceVisibility: "hidden",
+                    WebkitBackfaceVisibility: "hidden",
                   }}
                 >
                   <div className="flex justify-between items-center">
@@ -395,6 +398,9 @@ export const HowItWorks: React.FC = () => {
                   style={{
                     clipPath: `polygon(0 0, ${sliderPos}% 0, ${sliderPos}% 100%, 0 100%)`,
                     filter: "grayscale(100%) brightness(0.7)",
+                    willChange: "clip-path",
+                    backfaceVisibility: "hidden",
+                    WebkitBackfaceVisibility: "hidden",
                   }}
                 >
                   <div className="flex justify-between items-center">

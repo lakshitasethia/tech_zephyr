@@ -546,3 +546,19 @@ insert into public.shop_items (code, name, description, kind, cost_gold, grants_
   ('trinket_moth',   'The Moth',   'A small companion that circles your lantern for as long as your streak holds.','trinket', 150, null, 2, 60),
   ('trinket_quill',  'Ledger Quill','Your chronicle is written in a finer hand.',                                 'trinket', 300, null, 4, 70)
 on conflict (code) do nothing;
+
+-- ---------------------------------------------------------------------------
+-- Postgres grants EXECUTE on new functions to PUBLIC by default, so `anon`
+-- inherits the right to call the progression RPCs over /rest/v1/rpc/.
+-- Both functions already refuse an unauthenticated caller, but the endpoint
+-- should not be reachable at all.
+-- ---------------------------------------------------------------------------
+revoke execute on function public.complete_quest(uuid, public.completion_source) from public, anon;
+revoke execute on function public.purchase_item(text) from public, anon;
+revoke execute on function public.base_xp(public.quest_difficulty) from public, anon;
+revoke execute on function public.momentum(integer) from public, anon;
+
+grant execute on function public.complete_quest(uuid, public.completion_source) to authenticated;
+grant execute on function public.purchase_item(text) to authenticated;
+grant execute on function public.base_xp(public.quest_difficulty) to authenticated;
+grant execute on function public.momentum(integer) to authenticated;

@@ -4,14 +4,17 @@ import React, { useEffect, useRef } from "react";
 import { Lampbearer } from "@/components/sprites/Lampbearer";
 import { Moth } from "@/components/sprites/Moth";
 import { EmberCanvas } from "@/components/canvas/EmberCanvas";
-import { attachMagneticHover } from "@/lib/animations/gsapSetup";
+import { attachMagneticHover, smoothScrollTo } from "@/lib/animations/gsapSetup";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { initCharacterReveal } from "@/lib/animations/textReveals";
 
-interface FinalCTAProps {
-  onStartQuest?: () => void;
-}
-
-export const FinalCTA: React.FC<FinalCTAProps> = ({ onStartQuest }) => {
+export const FinalCTA: React.FC = () => {
   const btnRef = useRef<HTMLButtonElement | null>(null);
+  const headingRef = useRef<HTMLHeadingElement | null>(null);
+  const spriteLayerRef = useRef<HTMLDivElement | null>(null);
+  const emberLayerRef = useRef<HTMLDivElement | null>(null);
+  const textLayerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (btnRef.current) {
@@ -20,14 +23,70 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ onStartQuest }) => {
     }
   }, []);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReducedMotion) return;
+
+    // Character reveal on heading
+    if (headingRef.current) {
+      initCharacterReveal(headingRef.current);
+    }
+
+    // Parallax at 3 depths
+    const mm = gsap.matchMedia();
+    mm.add("(min-width: 900px)", () => {
+      if (textLayerRef.current) {
+        gsap.to(textLayerRef.current, {
+          y: 80,
+          ease: "none",
+          scrollTrigger: {
+            trigger: "#final-cta",
+            start: "top bottom",
+            end: "bottom top",
+            scrub: 0.5,
+          },
+        });
+      }
+      if (spriteLayerRef.current) {
+        gsap.to(spriteLayerRef.current, {
+          y: 40,
+          ease: "none",
+          scrollTrigger: {
+            trigger: "#final-cta",
+            start: "top bottom",
+            end: "bottom top",
+            scrub: 0.5,
+          },
+        });
+      }
+      if (emberLayerRef.current) {
+        gsap.to(emberLayerRef.current, {
+          y: 20,
+          ease: "none",
+          scrollTrigger: {
+            trigger: "#final-cta",
+            start: "top bottom",
+            end: "bottom top",
+            scrub: 0.5,
+          },
+        });
+      }
+    });
+
+    return () => mm.revert();
+  }, []);
+
   return (
     <section
       id="final-cta"
-      className="relative min-h-[90vh] py-32 px-6 sm:px-8 overflow-hidden flex flex-col items-center justify-center text-center"
+      tabIndex={-1}
+      className="relative min-h-[90vh] py-32 px-6 sm:px-8 overflow-hidden flex flex-col items-center justify-center text-center outline-none"
       aria-label="Final Call To Action"
     >
       {/* Full-width drifting embers */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
+      <div ref={emberLayerRef} className="absolute inset-0 z-0 pointer-events-none">
         <EmberCanvas count={80} direction="upward" />
       </div>
 
@@ -45,9 +104,9 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ onStartQuest }) => {
         aria-hidden="true"
       />
 
-      <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center">
+      <div ref={textLayerRef} className="relative z-10 max-w-4xl mx-auto flex flex-col items-center">
         {/* Lampbearer at larger scale with multiple moths circling */}
-        <div className="relative mb-20 sm:mb-24">
+        <div ref={spriteLayerRef} className="relative mb-20 sm:mb-24">
           <Lampbearer scale={7} glowing={true} />
 
           {/* Primary Moth */}
@@ -66,9 +125,16 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ onStartQuest }) => {
           </div>
         </div>
 
-        {/* Headline in Pixelify Sans */}
-        <h2 className="font-display text-4xl sm:text-6xl lg:text-7xl font-bold text-cream mb-6 tracking-wide select-none">
-          CHAPTER TWO STARTS TONIGHT
+        {/* Headline in Pixelify Sans with char-snap reveal */}
+        <h2
+          ref={headingRef}
+          className="font-display text-4xl sm:text-6xl lg:text-7xl font-bold text-cream mb-6 tracking-wide select-none"
+        >
+          {"CHAPTER TWO STARTS TONIGHT".split("").map((char, i) => (
+            <span key={i} className="char-snap inline-block">
+              {char === " " ? "\u00A0" : char}
+            </span>
+          ))}
         </h2>
 
         {/* One line of body copy */}
@@ -80,7 +146,7 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ onStartQuest }) => {
         <button
           ref={btnRef}
           type="button"
-          onClick={onStartQuest}
+          onClick={() => smoothScrollTo("how-it-works", { offset: -80 })}
           className="pixel-btn-amber py-4 px-10 tracking-micro shadow-2xl"
         >
           START A QUEST

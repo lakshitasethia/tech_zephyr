@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { initCharacterReveal, initCounterTween } from "@/lib/animations/textReveals";
 
 interface AttributeData {
   name: string;
@@ -14,39 +16,41 @@ interface AttributeData {
 
 export const Attributes: React.FC = () => {
   const sectionRef = useRef<HTMLDivElement | null>(null);
+  const headingRef = useRef<HTMLHeadingElement | null>(null);
   const [revealedIndex, setRevealedIndex] = useState<number>(0);
+  const valueRefs = useRef<(HTMLSpanElement | null)[]>([]);
 
   const attributes: AttributeData[] = [
     {
       name: "INTELLECT",
       category: "Reading, research, coding, writing.",
       totalBlocks: 24,
-      filledBlocks: 18,
-      value: 78,
+      filledBlocks: 19,
+      value: 19,
       color: "#7D8FB3", // Steel
     },
     {
       name: "STRENGTH",
       category: "Weightlifting, endurance, recovery, sleep.",
       totalBlocks: 24,
-      filledBlocks: 14,
-      value: 62,
+      filledBlocks: 12,
+      value: 12,
       color: "#C98A7F", // Rose
     },
     {
       name: "DISCIPLINE",
       category: "Consistency, zero missed days, habit tracking.",
       totalBlocks: 24,
-      filledBlocks: 21,
-      value: 89,
+      filledBlocks: 15,
+      value: 15,
       color: "#F0A44C", // Amber
     },
     {
       name: "SPIRIT",
       category: "Meditation, solitude, community, recharge.",
       totalBlocks: 24,
-      filledBlocks: 16,
-      value: 71,
+      filledBlocks: 8,
+      value: 8,
       color: "#8FAE93", // Sage
     },
   ];
@@ -60,6 +64,11 @@ export const Attributes: React.FC = () => {
       return;
     }
 
+    // Character reveal on heading
+    if (headingRef.current) {
+      initCharacterReveal(headingRef.current);
+    }
+
     const trigger = ScrollTrigger.create({
       trigger: sectionRef.current,
       start: "top 75%",
@@ -69,21 +78,31 @@ export const Attributes: React.FC = () => {
         const interval = setInterval(() => {
           count++;
           setRevealedIndex(count);
+
+          // Trigger counter tween for this attribute
+          const attrData = attributes[count - 1];
+          const el = valueRefs.current[count - 1];
+          if (el && attrData) {
+            initCounterTween(el, attrData.value, "", " LVL", 1.2);
+          }
+
           if (count >= 4) {
             clearInterval(interval);
           }
-        }, 90); // 90ms stagger
+        }, 120);
       },
     });
 
     return () => trigger.kill();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <section
       id="attributes"
       ref={sectionRef}
-      className="relative min-h-screen py-28 px-6 sm:px-8 overflow-hidden flex flex-col justify-center"
+      tabIndex={-1}
+      className="relative min-h-screen py-28 px-6 sm:px-8 overflow-hidden flex flex-col justify-center outline-none"
       aria-label="Attributes System"
     >
       <div className="max-w-7xl mx-auto w-full">
@@ -94,8 +113,15 @@ export const Attributes: React.FC = () => {
               <span className="w-1.5 h-1.5 bg-amber inline-block shrink-0" />
               CHARACTER CORE
             </div>
-            <h2 className="font-display text-4xl sm:text-6xl font-bold text-cream">
-              FOUR ATTRIBUTES
+            <h2
+              ref={headingRef}
+              className="font-display text-4xl sm:text-6xl font-bold text-cream"
+            >
+              {"FOUR ATTRIBUTES".split("").map((char, i) => (
+                <span key={i} className="char-snap inline-block">
+                  {char === " " ? "\u00A0" : char}
+                </span>
+              ))}
             </h2>
           </div>
 
@@ -129,7 +155,7 @@ export const Attributes: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Middle: Segmented Pixel Bar (discrete 8px blocks with 2px gaps) */}
+                {/* Middle: Segmented Pixel Bar (discrete 10px blocks with 2px gaps) */}
                 <div className="flex-1 flex items-center overflow-x-auto py-2">
                   <div className="flex items-center gap-[2px] select-none">
                     {Array.from({ length: attr.totalBlocks }).map((_, blockIdx) => {
@@ -139,8 +165,8 @@ export const Attributes: React.FC = () => {
                           key={blockIdx}
                           className="w-[10px] h-[24px] transition-colors duration-75 pixel-crisp"
                           style={{
-                            backgroundColor: isBlockFilled ? attr.color : "#101829",
-                            opacity: isBlockFilled ? 1 : 0.4,
+                            backgroundColor: isBlockFilled ? attr.color : "#1A2438",
+                            opacity: isBlockFilled ? 1 : 0.55,
                           }}
                           aria-hidden="true"
                         />
@@ -149,13 +175,13 @@ export const Attributes: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Right: Value in Pixelify Sans */}
-                <div className="md:w-24 text-left md:text-right shrink-0">
-                  <span className="font-display text-3xl sm:text-4xl font-bold text-cream tabular-nums">
-                    {isRevealed ? attr.value : 0}
-                  </span>
-                  <span className="font-micro text-[10px] text-muted ml-1 tracking-micro">
-                    LVL
+                {/* Right: Value counter with LVL suffix */}
+                <div className="md:w-28 text-left md:text-right shrink-0">
+                  <span
+                    ref={(el) => { valueRefs.current[idx] = el; }}
+                    className="font-display text-3xl sm:text-4xl font-bold text-cream tabular-nums"
+                  >
+                    {isRevealed ? `${attr.value} LVL` : "0 LVL"}
                   </span>
                 </div>
               </div>

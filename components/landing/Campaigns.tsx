@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Warden } from "@/components/sprites/Warden";
+import { initCharacterReveal } from "@/lib/animations/textReveals";
 
 interface Stage {
   num: string;
@@ -14,7 +16,9 @@ interface Stage {
 export const Campaigns: React.FC = () => {
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const pathRef = useRef<SVGLineElement | null>(null);
-  const [stagesCompleted, setStagesCompleted] = useState<number>(3); // 3 of 4 stages complete
+  const headingRef = useRef<HTMLHeadingElement | null>(null);
+  const healthBarRef = useRef<HTMLDivElement | null>(null);
+  const [stagesCompleted, setStagesCompleted] = useState<number>(0);
 
   const stages: Stage[] = [
     {
@@ -46,6 +50,20 @@ export const Campaigns: React.FC = () => {
   useEffect(() => {
     if (typeof window === "undefined" || !sectionRef.current) return;
 
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // Character reveal on heading
+    if (headingRef.current && !prefersReducedMotion) {
+      initCharacterReveal(headingRef.current);
+    }
+
+    if (prefersReducedMotion) {
+      setStagesCompleted(3);
+      return;
+    }
+
+    let prevStep = 0;
+
     // Draw connecting line on scroll into view
     const trigger = ScrollTrigger.create({
       trigger: sectionRef.current,
@@ -59,23 +77,39 @@ export const Campaigns: React.FC = () => {
           pathRef.current.style.strokeDashoffset = `${300 * (1 - progress)}`;
         }
 
-        // 4-step health bar depletion
-        const step = Math.min(4, Math.floor(self.progress * 4) + 1);
-        setStagesCompleted(Math.max(1, Math.min(4, step)));
+        // 4-step health bar depletion with shake on each new step
+        const step = Math.min(4, Math.floor(self.progress * 5));
+        if (step !== prevStep && step > prevStep) {
+          // Shake the health bar on each new hit
+          if (healthBarRef.current) {
+            gsap.fromTo(
+              healthBarRef.current,
+              { x: -3 },
+              {
+                x: 0,
+                duration: 0.3,
+                ease: "elastic.out(1.5, 0.3)",
+              }
+            );
+          }
+          prevStep = step;
+        }
+        setStagesCompleted(step);
       },
     });
 
     return () => trigger.kill();
   }, []);
 
-  // Boss health remaining: 4 steps, starting from 100% down to 25% (as 3 of 4 stages complete)
-  const healthPercent = Math.max(15, 100 - stagesCompleted * 22);
+  // Boss health remaining: 4 steps
+  const healthPercent = Math.max(10, 100 - stagesCompleted * 22);
 
   return (
     <section
       id="campaigns"
       ref={sectionRef}
-      className="relative min-h-screen py-28 px-6 sm:px-8 overflow-hidden flex flex-col justify-center"
+      tabIndex={-1}
+      className="relative min-h-screen py-28 px-6 sm:px-8 overflow-hidden flex flex-col justify-center outline-none"
       aria-label="Campaigns and the Warden Boss"
     >
       <div className="max-w-7xl mx-auto w-full">
@@ -85,16 +119,26 @@ export const Campaigns: React.FC = () => {
             <span className="w-1.5 h-1.5 bg-amber inline-block shrink-0" />
             EPIC OBJECTIVES
           </div>
-          <h2 className="font-display text-4xl sm:text-6xl font-bold text-cream">
-            CAMPAIGNS AND THE WARDEN
+          <h2
+            ref={headingRef}
+            className="font-display text-4xl sm:text-6xl font-bold text-cream"
+          >
+            {"CAMPAIGNS AND THE WARDEN".split("").map((char, i) => (
+              <span key={i} className="char-snap inline-block">
+                {char === " " ? "\u00A0" : char}
+              </span>
+            ))}
           </h2>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           {/* Left: Warden boss sprite at large integer scale + Health Bar */}
           <div className="lg:col-span-5 flex flex-col items-center">
-            {/* Warden Health Bar (depletes in four steps) */}
-            <div className="w-full max-w-[340px] mb-8 bg-[#0A0F1C] p-4">
+            {/* Warden Health Bar (depletes in four steps with shake) */}
+            <div
+              ref={healthBarRef}
+              className="w-full max-w-[340px] mb-8 bg-[#0A0F1C] p-4"
+            >
               <div className="flex justify-between items-center font-micro text-[10px] tracking-micro text-muted mb-2">
                 <span className="text-rose font-bold">WARDEN HP</span>
                 <span className="tabular-nums text-cream">{healthPercent}%</span>
@@ -137,14 +181,14 @@ export const Campaigns: React.FC = () => {
                     y2="100%"
                     stroke="#F0A44C"
                     strokeWidth="2"
-                    strokeDasharray="300"
-                    strokeDashoffset="0"
+                    strokeDasharray="4 4"
+                    strokeDashoffset="300"
                   />
                 </svg>
               </div>
 
               {stages.map((stage, idx) => {
-                const isComplete = idx < 3; // 3 of 4 stages complete
+                const isComplete = idx < stagesCompleted;
 
                 return (
                   <div key={stage.num} className="relative flex items-start gap-5 select-none">

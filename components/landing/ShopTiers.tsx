@@ -1,13 +1,15 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { Lampbearer } from "@/components/sprites/Lampbearer";
 import { IdleOne } from "@/components/sprites/IdleOne";
+import { initCharacterReveal, initCounterTween } from "@/lib/animations/textReveals";
 
 interface TierInfo {
   tier: string;
   name: string;
   cost: string;
+  costNum: number;
   desc: string;
   unlocked: boolean;
   bgTint: string;
@@ -16,14 +18,34 @@ interface TierInfo {
 }
 
 export const ShopTiers: React.FC = () => {
-  // Avoid hydration mismatch: compute offset only after mount
   const [isDesktop, setIsDesktop] = useState(false);
+  const headingRef = useRef<HTMLHeadingElement | null>(null);
+  const canHoverRef = useRef(false);
+  const [revealPos, setRevealPos] = useState({ x: 0.5, y: 0.5 });
+  const tier0Ref = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const check = () => setIsDesktop(window.innerWidth >= 1024);
     check();
     window.addEventListener("resize", check);
+
+    canHoverRef.current = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+    // Character reveal on heading
+    if (headingRef.current) {
+      initCharacterReveal(headingRef.current);
+    }
+
     return () => window.removeEventListener("resize", check);
+  }, []);
+
+  // Tier 0 cursor reveal - track pointer position over the card
+  const handleTier0Move = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!tier0Ref.current || !canHoverRef.current) return;
+    const rect = tier0Ref.current.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;
+    const y = (e.clientY - rect.top) / rect.height;
+    setRevealPos({ x, y });
   }, []);
 
   const tiers: TierInfo[] = [
@@ -31,6 +53,7 @@ export const ShopTiers: React.FC = () => {
       tier: "TIER 0",
       name: "COLD START",
       cost: "FREE",
+      costNum: 0,
       desc: "Near monochrome. One weak lamp. The world is barely visible.",
       unlocked: true,
       bgTint: "#0A0F1C",
@@ -41,6 +64,7 @@ export const ShopTiers: React.FC = () => {
       tier: "TIER 1",
       name: "LAMPLIGHT",
       cost: "400 GOLD",
+      costNum: 400,
       desc: "Amber enters. Ink deepens. Quests begin to glow.",
       unlocked: true,
       bgTint: "#131A2C",
@@ -51,6 +75,7 @@ export const ShopTiers: React.FC = () => {
       tier: "TIER 2",
       name: "BLOOM",
       cost: "1,200 GOLD",
+      costNum: 1200,
       desc: "Sage and rose accents appear. Ambient embers drift.",
       unlocked: false,
       bgTint: "#1E1B2A",
@@ -61,6 +86,7 @@ export const ShopTiers: React.FC = () => {
       tier: "TIER 3",
       name: "ASCENDANT",
       cost: "3,000 GOLD",
+      costNum: 3000,
       desc: "Full warmth. Gold leaf. Volumetric light on every surface.",
       unlocked: false,
       bgTint: "#2C2128",
@@ -72,7 +98,8 @@ export const ShopTiers: React.FC = () => {
   return (
     <section
       id="the-shop"
-      className="relative py-24 sm:py-28 px-6 sm:px-8 overflow-hidden"
+      tabIndex={-1}
+      className="relative py-24 sm:py-28 px-6 sm:px-8 overflow-hidden outline-none"
       aria-label="The Shop and Tiers"
     >
       <div className="max-w-7xl mx-auto w-full">
@@ -82,8 +109,15 @@ export const ShopTiers: React.FC = () => {
             <span className="w-1.5 h-1.5 bg-amber inline-block shrink-0" />
             THE VISUAL PROGRESSION
           </div>
-          <h2 className="font-display text-4xl sm:text-6xl font-bold text-cream mb-6">
-            BUY THE LIGHT BACK
+          <h2
+            ref={headingRef}
+            className="font-display text-4xl sm:text-6xl font-bold text-cream mb-6"
+          >
+            {"BUY THE LIGHT BACK".split("").map((char, i) => (
+              <span key={i} className="char-snap inline-block">
+                {char === " " ? "\u00A0" : char}
+              </span>
+            ))}
           </h2>
           <p className="font-body text-muted">
             Gold earned from real work unlocks visual tiers. The entire interface
@@ -98,10 +132,13 @@ export const ShopTiers: React.FC = () => {
         >
           {tiers.map((t, idx) => {
             const offset = isDesktop ? (3 - idx) * 28 : 0;
+            const isTier0 = idx === 0;
 
             return (
               <div
                 key={t.tier}
+                ref={isTier0 ? tier0Ref : undefined}
+                onMouseMove={isTier0 ? handleTier0Move : undefined}
                 className={`relative flex flex-col justify-between p-6 sm:p-7 select-none transition-all duration-300 ${
                   t.unlocked ? "" : "opacity-60 grayscale-[70%]"
                 }`}
@@ -112,18 +149,31 @@ export const ShopTiers: React.FC = () => {
                   borderLeft: `2px solid ${t.accent}`,
                 }}
               >
+                {/* Tier 0 cursor reveal mask (desktop only) */}
+                {isTier0 && canHoverRef.current && (
+                  <div
+                    className="pointer-events-none absolute inset-0 z-20"
+                    style={{
+                      background: "radial-gradient(circle at 50% 30%, rgba(240, 164, 76, 0.12) 0%, transparent 60%)",
+                      maskImage: `radial-gradient(circle 80px at ${revealPos.x * 100}% ${revealPos.y * 100}%, black 0%, transparent 100%)`,
+                      WebkitMaskImage: `radial-gradient(circle 80px at ${revealPos.x * 100}% ${revealPos.y * 100}%, black 0%, transparent 100%)`,
+                    }}
+                    aria-hidden="true"
+                  />
+                )}
+
                 {/* Top: Tier badge, Cost, and Lock Status */}
-                <div className="flex items-center justify-between mb-5">
-                  <div>
-                    <span className="font-micro tracking-micro block" style={{ fontSize: "11px", color: t.accent }}>
+                <div className="flex items-start justify-between mb-5 gap-2">
+                  <div className="flex flex-col">
+                    <span className="font-micro tracking-micro" style={{ fontSize: "11px", color: t.accent }}>
                       {t.tier}
                     </span>
-                    <span className="font-display text-xl font-bold text-cream">
+                    <span className="font-display text-xl font-bold text-cream mt-1">
                       {t.name}
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 shrink-0 pt-1">
                     <span className="font-micro text-gold tracking-micro" style={{ fontSize: "12px" }}>
                       {t.cost}
                     </span>
@@ -207,6 +257,13 @@ export const ShopTiers: React.FC = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Tier 0 reveal label (desktop only) */}
+                {isTier0 && canHoverRef.current && (
+                  <div className="font-micro text-muted tracking-micro text-center mb-2" style={{ fontSize: "10px" }}>
+                    MOVE YOUR CURSOR
+                  </div>
+                )}
 
                 {/* Description */}
                 <p className="font-body text-muted" style={{ fontSize: "14px", lineHeight: "1.6" }}>

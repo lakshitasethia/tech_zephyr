@@ -4,18 +4,17 @@ import React, { useEffect, useRef } from "react";
 import { Lampbearer } from "@/components/sprites/Lampbearer";
 import { Moth } from "@/components/sprites/Moth";
 import { EmberCanvas } from "@/components/canvas/EmberCanvas";
-import { attachMagneticHover } from "@/lib/animations/gsapSetup";
+import { attachMagneticHover, smoothScrollTo } from "@/lib/animations/gsapSetup";
 import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-interface HeroProps {
-  onStartQuest?: () => void;
-}
-
-export const Hero: React.FC<HeroProps> = ({ onStartQuest }) => {
+export const Hero: React.FC = () => {
   const questBtnRef = useRef<HTMLButtonElement | null>(null);
   const headlineRef = useRef<HTMLHeadingElement | null>(null);
   const textLayerRef = useRef<HTMLDivElement | null>(null);
   const spriteLayerRef = useRef<HTMLDivElement | null>(null);
+  const emberLayerRef = useRef<HTMLDivElement | null>(null);
+  const cursorLightRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (questBtnRef.current) {
@@ -25,6 +24,8 @@ export const Hero: React.FC<HeroProps> = ({ onStartQuest }) => {
   }, []);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReducedMotion) return;
 
@@ -45,28 +46,115 @@ export const Hero: React.FC<HeroProps> = ({ onStartQuest }) => {
       );
     }
 
-    // Parallax at three depths (particle layer slowest, sprite layer medium, text layer fastest)
-    const handleScroll = () => {
-      const y = window.scrollY;
+    // Parallax at three depths via ScrollTrigger
+    const mm = gsap.matchMedia();
+    mm.add("(min-width: 900px)", () => {
       if (textLayerRef.current) {
-        textLayerRef.current.style.transform = `translateY(${y * 0.16}px)`;
+        gsap.to(textLayerRef.current, {
+          y: 120,
+          ease: "none",
+          scrollTrigger: {
+            trigger: "#hero",
+            start: "top top",
+            end: "bottom top",
+            scrub: 0.5,
+          },
+        });
       }
-      if (spriteLayerRef.current) {
-        spriteLayerRef.current.style.transform = `translateY(${y * 0.08}px)`;
-      }
-    };
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+      if (spriteLayerRef.current) {
+        gsap.to(spriteLayerRef.current, {
+          y: 60,
+          ease: "none",
+          scrollTrigger: {
+            trigger: "#hero",
+            start: "top top",
+            end: "bottom top",
+            scrub: 0.5,
+          },
+        });
+      }
+
+      if (emberLayerRef.current) {
+        gsap.to(emberLayerRef.current, {
+          y: 30,
+          ease: "none",
+          scrollTrigger: {
+            trigger: "#hero",
+            start: "top top",
+            end: "bottom top",
+            scrub: 0.5,
+          },
+        });
+      }
+    });
+
+    // Hero cursor light - additive warm radial following pointer
+    const canHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    let lightRaf: number;
+    let targetX = 0;
+    let targetY = 0;
+    let currentX = 0;
+    let currentY = 0;
+
+    if (canHover && cursorLightRef.current) {
+      const light = cursorLightRef.current;
+      light.style.display = "block";
+
+      const onMouseMove = (e: MouseEvent) => {
+        targetX = e.clientX;
+        targetY = e.clientY;
+      };
+
+      const animate = () => {
+        currentX += (targetX - currentX) * 0.12;
+        currentY += (targetY - currentY) * 0.12;
+        light.style.transform = `translate3d(${currentX - 200}px, ${currentY - 200}px, 0)`;
+        lightRaf = requestAnimationFrame(animate);
+      };
+
+      window.addEventListener("mousemove", onMouseMove, { passive: true });
+      lightRaf = requestAnimationFrame(animate);
+
+      return () => {
+        window.removeEventListener("mousemove", onMouseMove);
+        cancelAnimationFrame(lightRaf);
+        mm.revert();
+      };
+    }
+
+    return () => {
+      mm.revert();
+    };
   }, []);
 
   const headlineLines = ["YOUR LIFE", "IS ALREADY", "AN RPG"];
 
+  const handleStartQuest = () => {
+    smoothScrollTo("how-it-works", { offset: -80 });
+  };
+
   return (
     <section
       id="hero"
-      className="relative min-h-screen pt-40 sm:pt-44 pb-20 px-6 sm:px-8 flex flex-col justify-between overflow-hidden"
+      tabIndex={-1}
+      className="relative min-h-screen pt-40 sm:pt-44 pb-20 px-6 sm:px-8 flex flex-col justify-between overflow-hidden outline-none"
     >
+      {/* Cursor-following additive warm light (desktop only) */}
+      <div
+        ref={cursorLightRef}
+        className="pointer-events-none fixed z-20"
+        style={{
+          display: "none",
+          width: "400px",
+          height: "400px",
+          background: "radial-gradient(circle, rgba(240, 164, 76, 0.12) 0%, rgba(240, 164, 76, 0.04) 40%, transparent 70%)",
+          borderRadius: "50%",
+          mixBlendMode: "screen",
+        }}
+        aria-hidden="true"
+      />
+
       <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center my-auto">
         {/* Left two thirds: Eyebrow, Headline, Paragraph, Controls */}
         <div ref={textLayerRef} className="lg:col-span-7 flex flex-col items-start z-10">
@@ -104,7 +192,7 @@ export const Hero: React.FC<HeroProps> = ({ onStartQuest }) => {
             <button
               ref={questBtnRef}
               type="button"
-              onClick={onStartQuest}
+              onClick={handleStartQuest}
               className="pixel-btn-amber"
             >
               START A QUEST
@@ -112,6 +200,10 @@ export const Hero: React.FC<HeroProps> = ({ onStartQuest }) => {
 
             <a
               href="#how-it-works"
+              onClick={(e) => {
+                e.preventDefault();
+                smoothScrollTo("how-it-works", { offset: -80 });
+              }}
               className="group inline-flex items-center gap-2.5 font-micro text-cream hover:text-amber transition-colors duration-150 py-2 focus-visible:outline-amber"
             >
               <span>SEE HOW IT WORKS</span>
@@ -133,7 +225,7 @@ export const Hero: React.FC<HeroProps> = ({ onStartQuest }) => {
           className="lg:col-span-5 relative flex items-center justify-center min-h-[380px] lg:min-h-[460px]"
         >
           {/* Slow particle field behind sprite */}
-          <div className="absolute inset-0 z-0">
+          <div ref={emberLayerRef} className="absolute inset-0 z-0">
             <EmberCanvas count={45} direction="radial" originX={0.5} originY={0.55} />
           </div>
 

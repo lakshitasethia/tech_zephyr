@@ -18,6 +18,14 @@ export const EASES = {
   smoothPalette: "cubic-bezier(0.45, 0, 0.55, 1)",
 };
 
+// Module-level Lenis reference so any component can use it
+let _lenis: Lenis | null = null;
+
+/** Returns the active Lenis instance, if any. */
+export function getLenis(): Lenis | null {
+  return _lenis;
+}
+
 /**
  * Initializes Lenis smooth scrolling and synchronizes it with GSAP ScrollTrigger ticker.
  */
@@ -39,6 +47,8 @@ export function initSmoothScroll(): { lenis: Lenis | null; destroy: () => void }
     smoothWheel: true,
   });
 
+  _lenis = lenis;
+
   const tickerCallback = (time: number) => {
     lenis.raf(time * 1000);
   };
@@ -52,8 +62,56 @@ export function initSmoothScroll(): { lenis: Lenis | null; destroy: () => void }
     destroy: () => {
       gsap.ticker.remove(tickerCallback);
       lenis.destroy();
+      _lenis = null;
     },
   };
+}
+
+/**
+ * Smooth-scroll to a target element using the active Lenis instance.
+ * Falls back to native scrollIntoView under reduced motion or if Lenis is absent.
+ * Updates the URL hash via pushState so links remain shareable.
+ * After scroll settles, moves focus to the target section for keyboard navigation.
+ */
+export function smoothScrollTo(
+  targetId: string,
+  opts?: { offset?: number }
+) {
+  if (typeof window === "undefined") return;
+
+  const el = document.getElementById(targetId);
+  if (!el) return;
+
+  const offset = opts?.offset ?? 0;
+
+  // Update URL hash without triggering a jump
+  history.pushState(null, "", `#${targetId}`);
+
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const lenis = getLenis();
+
+  if (prefersReducedMotion || !lenis) {
+    // Instant jump
+    el.scrollIntoView({ block: "start" });
+    window.scrollBy(0, offset);
+    el.focus({ preventScroll: true });
+    return;
+  }
+
+  // Custom cubic-bezier ease for smooth scroll
+  const ease = (t: number) => {
+    // Approximation of cubic-bezier(0.22, 1, 0.36, 1)
+    return 1 - Math.pow(1 - t, 3.5);
+  };
+
+  lenis.scrollTo(el, {
+    offset,
+    duration: 1.4,
+    easing: ease,
+    onComplete: () => {
+      el.focus({ preventScroll: true });
+    },
+  });
 }
 
 /**
@@ -101,11 +159,60 @@ export function initBackgroundTransitions() {
 }
 
 /**
+ * Scroll velocity skew effect.
+ * Applies a subtle skewY to section content proportional to scroll velocity.
+ * Clamped to ~1.5 degrees. Desktop only, disabled under reduced motion.
+ */
+export function initScrollVelocitySkew() {
+  if (typeof window === "undefined") return () => {};
+
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (prefersReducedMotion) return () => {};
+
+  const mm = gsap.matchMedia();
+
+  mm.add("(min-width: 900px)", () => {
+    const sections = document.querySelectorAll<HTMLElement>(
+      "#hero, #how-it-works, #the-shop, #attributes, #campaigns, #final-cta"
+    );
+
+    let currentSkew = 0;
+
+    const lenis = getLenis();
+    if (!lenis) return;
+
+    const onScroll = () => {
+      const velocity = lenis.velocity;
+      const targetSkew = Math.max(-1.5, Math.min(1.5, velocity * 0.008));
+      // Lerp toward target
+      currentSkew += (targetSkew - currentSkew) * 0.15;
+
+      sections.forEach((section) => {
+        section.style.transform = `skewY(${currentSkew.toFixed(3)}deg)`;
+      });
+    };
+
+    lenis.on("scroll", onScroll);
+
+    return () => {
+      lenis.off("scroll", onScroll);
+      sections.forEach((s) => (s.style.transform = ""));
+    };
+  });
+
+  return () => mm.revert();
+}
+
+/**
  * Magnetic button hover effect.
  * Translates toward the cursor up to max 6px, and springs back on leave.
  */
 export function attachMagneticHover(element: HTMLElement, maxDistance: number = 6) {
   if (!element || typeof window === "undefined") return () => {};
+
+  // Desktop pointer only
+  const canHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  if (!canHover) return () => {};
 
   const onMouseMove = (e: MouseEvent) => {
     const rect = element.getBoundingClientRect();
