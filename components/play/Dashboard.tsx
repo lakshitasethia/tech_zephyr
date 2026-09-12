@@ -30,7 +30,13 @@ import type {
 } from "@/lib/game/types";
 import Celebration from "./Celebration";
 import AmbiencePicker from "./AmbiencePicker";
-import { playKeyTick } from "@/lib/audio/ambience";
+import {
+  playAddQuest,
+  playComplete,
+  playKeyTick,
+  playLevelUp,
+  playPurchase,
+} from "@/lib/audio/ambience";
 import "./tiers.css";
 
 interface Props {
@@ -132,8 +138,15 @@ export default function Dashboard(props: Props) {
         ),
       );
 
-      if (d.levelled_up) setCelebration(d.level_after);
-      else toast(`+${d.xp_awarded} xp, +${d.gold_awarded} gold`);
+      playComplete();
+      if (d.levelled_up) {
+        // The fanfare lands just after the triumph so they layer rather
+        // than talk over each other.
+        window.setTimeout(playLevelUp, 300);
+        setCelebration(d.level_after);
+      } else {
+        toast(`+${d.xp_awarded} xp, +${d.gold_awarded} gold`);
+      }
     });
   }
 
@@ -170,6 +183,7 @@ export default function Dashboard(props: Props) {
         return;
       }
       setQuests((prev) => [res.data, ...prev]);
+      playAddQuest();
       toast("Quest added");
     });
   }
@@ -224,6 +238,7 @@ export default function Dashboard(props: Props) {
         theme_tier: res.data.theme_tier,
       }));
       // A tier purchase should read as an event, not a silent recolour.
+      playPurchase();
       if (tierChanged) setFlash((n) => n + 1);
       toast(
         item.grants_tier !== null

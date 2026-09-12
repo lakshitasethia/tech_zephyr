@@ -254,3 +254,176 @@ export function playKeyTick(): void {
     osc.stop(now + dur + 0.01);
   } catch {}
 }
+
+/* ---------------------------------------------------------------------------
+ * Event cues.
+ *
+ * Four distinct sounds so the ear can tell what happened without looking:
+ * a light confirm on add, a short triumph on completion, a real fanfare on
+ * level up, and a warm unlock on a purchase. All synthesized, all sharing the
+ * ambience AudioContext so we are not holding two of them open.
+ * ------------------------------------------------------------------------ */
+
+/** Respects the same mute switch as the intro audio. */
+function cuesMuted(): boolean {
+  try {
+    return localStorage.getItem("liferpg_audio_muted") === "true";
+  } catch {
+    return false;
+  }
+}
+
+interface ToneOpts {
+  freq: number;
+  at: number;
+  dur: number;
+  peak?: number;
+  type?: OscillatorType;
+  glideTo?: number;
+}
+
+function tone(context: AudioContext, dest: AudioNode, o: ToneOpts) {
+  const osc = context.createOscillator();
+  const g = context.createGain();
+  osc.type = o.type ?? "triangle";
+  osc.frequency.setValueAtTime(o.freq, o.at);
+  if (o.glideTo) {
+    osc.frequency.exponentialRampToValueAtTime(o.glideTo, o.at + o.dur);
+  }
+  const peak = o.peak ?? 0.18;
+  // Tiny attack rather than an instant start, which clicks.
+  g.gain.setValueAtTime(0.0001, o.at);
+  g.gain.exponentialRampToValueAtTime(peak, o.at + 0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001, o.at + o.dur);
+  osc.connect(g).connect(dest);
+  osc.start(o.at);
+  osc.stop(o.at + o.dur + 0.03);
+}
+
+/** Shared setup for every cue. Returns null when audio is unavailable. */
+function cueBus(): { context: AudioContext; bus: GainNode; now: number } | null {
+  try {
+    if (cuesMuted()) return null;
+    if (!ensureContext() || !ctx) return null;
+    if (ctx.state === "suspended") void ctx.resume();
+    const bus = ctx.createGain();
+    bus.gain.value = 0.5;
+    bus.connect(ctx.destination);
+    return { context: ctx, bus, now: ctx.currentTime };
+  } catch {
+    return null;
+  }
+}
+
+/** Quest added: a light two note confirm. Deliberately small. */
+export function playAddQuest(): void {
+  const b = cueBus();
+  if (!b) return;
+  try {
+    tone(b.context, b.bus, { freq: 587.33, at: b.now, dur: 0.075, peak: 0.14 });
+    tone(b.context, b.bus, { freq: 880.0, at: b.now + 0.07, dur: 0.11, peak: 0.13 });
+  } catch {}
+}
+
+/** Quest completed: a short rising triumph. */
+export function playComplete(): void {
+  const b = cueBus();
+  if (!b) return;
+  try {
+    const notes = [523.25, 659.25, 783.99, 1046.5];
+    notes.forEach((f, i) =>
+      tone(b.context, b.bus, {
+        freq: f,
+        at: b.now + i * 0.062,
+        dur: 0.2,
+        peak: 0.17,
+        type: i === notes.length - 1 ? "sine" : "triangle",
+      }),
+    );
+    // A little shine on top of the final note.
+    tone(b.context, b.bus, {
+      freq: 2093,
+      at: b.now + 0.19,
+      dur: 0.3,
+      peak: 0.05,
+      type: "sine",
+    });
+  } catch {}
+}
+
+/** Level up: a real fanfare with a pad underneath. The biggest moment. */
+export function playLevelUp(): void {
+  const b = cueBus();
+  if (!b) return;
+  try {
+    const notes = [523.25, 659.25, 783.99, 1046.5, 1318.5];
+    notes.forEach((f, i) =>
+      tone(b.context, b.bus, {
+        freq: f,
+        at: b.now + i * 0.085,
+        dur: 0.34,
+        peak: 0.2,
+        type: "triangle",
+      }),
+    );
+    // Sustained fifth underneath so it lands rather than just chirps.
+    tone(b.context, b.bus, {
+      freq: 261.63,
+      at: b.now,
+      dur: 1.25,
+      peak: 0.12,
+      type: "sine",
+    });
+    tone(b.context, b.bus, {
+      freq: 392.0,
+      at: b.now + 0.04,
+      dur: 1.2,
+      peak: 0.09,
+      type: "sine",
+    });
+    tone(b.context, b.bus, {
+      freq: 2093,
+      at: b.now + 0.42,
+      dur: 0.55,
+      peak: 0.06,
+      type: "sine",
+    });
+  } catch {}
+}
+
+/** Purchase: a warm unlock. Low swell, then the light arrives. */
+export function playPurchase(): void {
+  const b = cueBus();
+  if (!b) return;
+  try {
+    tone(b.context, b.bus, {
+      freq: 174.61,
+      at: b.now,
+      dur: 0.42,
+      peak: 0.16,
+      type: "sine",
+      glideTo: 261.63,
+    });
+    tone(b.context, b.bus, {
+      freq: 698.46,
+      at: b.now + 0.16,
+      dur: 0.45,
+      peak: 0.14,
+      type: "triangle",
+    });
+    tone(b.context, b.bus, {
+      freq: 1046.5,
+      at: b.now + 0.26,
+      dur: 0.55,
+      peak: 0.1,
+      type: "sine",
+    });
+    tone(b.context, b.bus, {
+      freq: 1567.98,
+      at: b.now + 0.36,
+      dur: 0.6,
+      peak: 0.06,
+      type: "sine",
+    });
+  } catch {}
+}
