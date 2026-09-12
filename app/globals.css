@@ -1,0 +1,170 @@
+@import "tailwindcss";
+@config "../tailwind.config.ts";
+
+:root {
+  /* Background palette in scroll sequence */
+  --void: #06070B;
+  --ink: #0A0F1C;
+  --deep: #101829;
+  --slate: #171C2E;
+  --plum: #221E2E;
+  --warm: #2C2128;
+  --ember: #38271C;
+  --closing: #0A0B10;
+
+  /* Foreground and accents */
+  --cream: #F2ECE2;
+  --muted: #9D9385;
+  --amber: #F0A44C;
+  --gold: #FFC46B;
+  --sage: #8FAE93;
+  --rose: #C98A7F;
+  --steel: #7D8FB3;
+
+  /* Current dynamic background for smooth interpolation */
+  --current-bg: var(--void);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border-radius: 0px;
+}
+
+html {
+  background-color: var(--void);
+  color: var(--cream);
+  font-family: var(--font-instrument), system-ui, sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background-color: transparent;
+  min-height: 100vh;
+  overflow-x: hidden;
+  color: var(--cream);
+}
+
+/* Single fixed background layer that smoothly interpolates */
+#global-background-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -10;
+  pointer-events: none;
+  background-color: var(--current-bg);
+  transition: background-color 0.15s linear;
+}
+
+/* Accessible Tab focus: exactly 2px solid amber offset outline */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--amber) !important;
+  outline-offset: 2px !important;
+}
+
+/* Typography utilities */
+.font-display {
+  font-family: var(--font-pixelify), system-ui, sans-serif;
+  text-wrap: balance;
+}
+
+.font-micro {
+  font-family: var(--font-silkscreen), monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 11px;
+}
+
+.font-body {
+  font-family: var(--font-instrument), system-ui, sans-serif;
+  max-width: 65ch;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Pixel crisp rendering */
+.pixel-crisp {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  shape-rendering: crispEdges;
+}
+
+/* Pixel button styling with reversed press shadow */
+.pixel-btn-amber {
+  position: relative;
+  background-color: var(--amber);
+  color: var(--void);
+  font-family: var(--font-silkscreen), monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 12px 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.12s steps(2, end), box-shadow 0.12s steps(2, end);
+  border: none;
+  cursor: pointer;
+  user-select: none;
+}
+
+.pixel-btn-amber:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 2px 2px 0px 0px var(--gold);
+}
+
+.pixel-btn-amber:active {
+  transform: translate(0px, 0px);
+  box-shadow: 0px 0px 0px 0px transparent;
+}
+
+/* Nav link underline drawing effect */
+.nav-link-draw {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 4px;
+  color: var(--muted);
+  transition: color 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.nav-link-draw::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 2px;
+  background-color: var(--amber);
+  transition: width 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.nav-link-draw:hover,
+.nav-link-draw.active {
+  color: var(--cream);
+}
+
+.nav-link-draw:hover::after,
+.nav-link-draw.active::after {
+  width: 100%;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

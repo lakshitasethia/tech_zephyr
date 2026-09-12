@@ -1,0 +1,102 @@
+/*
+ * Theme tiers. The signature mechanic: the user buys the lighting of their own
+ * world back, one tier at a time.
+ *
+ * These rules redefine the shared palette tokens inside .tier-root only, so the
+ * landing page is untouched. Tier 0 is deliberately cold and close to
+ * monochrome. Every later tier restores saturation and warmth. The transition
+ * is animated so a purchase visibly changes the room.
+ */
+
+.tier-root {
+  background-color: var(--void);
+  transition:
+    background-color 900ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.tier-root * {
+  transition:
+    background-color 700ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 700ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---- Tier 0. Cold Start. One weak lamp, almost no colour. ---- */
+.tier-root[data-tier="0"] {
+  --void: #08090C;
+  --ink: #101114;
+  --cream: #C9C7C2;
+  --muted: #6B6A67;
+  --amber: #9A8A72;
+  --gold: #A8998A;
+  --sage: #7B827C;
+  --rose: #8A7B78;
+  --steel: #767C86;
+}
+
+/* ---- Tier 1. Lamplight. Amber returns, the ink deepens. ---- */
+.tier-root[data-tier="1"] {
+  --void: #06070B;
+  --ink: #0D1320;
+  --cream: #E6E1D8;
+  --muted: #8E877D;
+  --amber: #D9924A;
+  --gold: #EBAE61;
+  --sage: #7E9A83;
+  --rose: #B47E74;
+  --steel: #74849F;
+}
+
+/* ---- Tier 2. Bloom. Sage and rose enter. ---- */
+.tier-root[data-tier="2"] {
+  --void: #07080E;
+  --ink: #121A2B;
+  --cream: #F0EAE0;
+  --muted: #9A9389;
+  --amber: #F0A44C;
+  --gold: #FFC46B;
+  --sage: #8FAE93;
+  --rose: #C98A7F;
+  --steel: #7D8FB3;
+}
+
+/* ---- Tier 3. Ascendant. Full warmth and gold leaf. ---- */
+.tier-root[data-tier="3"] {
+  --void: #0B0A0D;
+  --ink: #1C1722;
+  --cream: #FBF6EC;
+  --muted: #B2A794;
+  --amber: #FFB45E;
+  --gold: #FFD489;
+  --sage: #A3C4A6;
+  --rose: #DDA096;
+  --steel: #93A6CC;
+}
+
+/* A faint warm bloom that grows with the tier, so the page itself feels lit
+   rather than just recoloured. */
+.tier-root::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 900ms cubic-bezier(0.22, 1, 0.36, 1);
+  background:
+    radial-gradient(70rem 40rem at 78% -10%, color-mix(in srgb, var(--amber) 22%, transparent), transparent 70%),
+    radial-gradient(48rem 32rem at 4% 106%, color-mix(in srgb, var(--sage) 14%, transparent), transparent 72%);
+}
+
+.tier-root[data-tier="1"]::before { opacity: 0.45; }
+.tier-root[data-tier="2"]::before { opacity: 0.75; }
+.tier-root[data-tier="3"]::before { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tier-root,
+  .tier-root *,
+  .tier-root::before {
+    transition-duration: 0.01ms !important;
+  }
+}
