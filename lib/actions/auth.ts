@@ -1,5 +1,6 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
@@ -75,6 +76,21 @@ export async function signIn(formData: FormData): Promise<ActionResult> {
 
 export async function signOut() {
   const supabase = await createClient();
-  await supabase.auth.signOut();
+
+  // scope "local" clears this device's session without a network round trip
+  // to revoke the refresh token. A global sign out that cannot reach Supabase
+  // leaves the cookies in place and the user apparently still signed in.
+  await supabase.auth.signOut({ scope: "local" });
+
+  // Belt and braces. If the helper fails to write the removal cookies for any
+  // reason, the session survives and Sign out silently does nothing. Clear
+  // every Supabase auth cookie explicitly.
+  const store = await cookies();
+  for (const cookie of store.getAll()) {
+    if (cookie.name.startsWith("sb-")) {
+      store.delete(cookie.name);
+    }
+  }
+
   redirect("/");
 }

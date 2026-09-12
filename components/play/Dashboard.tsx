@@ -3,7 +3,6 @@
 import { useOptimistic, useRef, useState, useTransition } from "react";
 import { completeQuest, createQuest, deleteQuest } from "@/lib/actions/quests";
 import { purchaseItem } from "@/lib/actions/shop";
-import { signOut } from "@/lib/actions/auth";
 import {
   ATTRIBUTE_LABEL,
   ATTRIBUTES,
@@ -213,7 +212,11 @@ export default function Dashboard(props: Props) {
               <Stat label="Gold" value={profile.gold.toLocaleString()} accent />
               <Stat label="Streak" value={`${profile.streak_current}d`} />
               <Stat label="Momentum" value={`${mult.toFixed(2)}x`} accent />
-              <form action={signOut}>
+              {/* A real HTML form posting to a route handler, not a Server
+                  Action. As <form action={signOut}> React rendered an empty
+                  action attribute and no request ever reached the server.
+                  This also works with JavaScript disabled. */}
+              <form method="post" action="/auth/signout">
                 <button
                   type="submit"
                   className="font-micro text-[var(--muted)] underline underline-offset-4 hover:text-[var(--cream)]"
