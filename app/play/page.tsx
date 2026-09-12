@@ -4,7 +4,7 @@ import { getDashboard } from "@/lib/game/queries";
 import Dashboard from "@/components/play/Dashboard";
 
 export const metadata: Metadata = {
-  title: "Your quests | Life RPG",
+  title: "Your quests",
   description: "Your character, quests, attributes and shop.",
 };
 

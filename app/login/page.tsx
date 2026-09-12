@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import AuthForm from "@/components/auth/AuthForm";
 
 export const metadata: Metadata = {
-  title: "Sign in | Life RPG",
+  title: "Sign in",
   description: "Sign in to Life RPG and pick up where your character left off.",
 };
 

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import AuthForm from "@/components/auth/AuthForm";
 
 export const metadata: Metadata = {
-  title: "Create your character | Life RPG",
+  title: "Create your character",
   description:
     "Start Life RPG. Turn real tasks into quests, earn gold, and buy the light back.",
 };

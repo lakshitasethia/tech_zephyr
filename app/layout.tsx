@@ -23,12 +23,50 @@ const instrumentSans = Instrument_Sans({
   display: "swap",
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
 export const metadata: Metadata = {
-  title: "Life RPG. Buy the Light Back",
+  // metadataBase resolves the Open Graph and Twitter image URLs to absolute
+  // ones. Without it Next warns and social scrapers get a relative path.
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "Life RPG. Buy the Light Back",
+    // Sub pages set their own title and inherit this frame.
+    template: "%s | Life RPG",
+  },
   description:
-    "Life RPG turns real-life tasks into an RPG. Complete quests, earn gold, and buy the light back for a darkened world.",
-  keywords: ["Life RPG", "Productivity", "Habit Tracker", "Gamification"],
+    "Life RPG turns real tasks into quests. Earn XP and gold from work you actually did, level four attributes, hold a streak, and buy the light back for a world that starts in the dark.",
+  applicationName: "Life RPG",
+  keywords: [
+    "gamified to do list",
+    "habit tracker",
+    "RPG productivity app",
+    "quest tracker",
+    "XP task manager",
+    "Life RPG",
+  ],
   authors: [{ name: "Life RPG" }],
+  creator: "Life RPG",
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    siteName: "Life RPG",
+    url: siteUrl,
+    title: "Life RPG. Buy the Light Back",
+    description:
+      "Turn real tasks into quests. Earn gold from work you actually did, and buy the light back for a world that starts in the dark.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Life RPG. Buy the Light Back",
+    description:
+      "Turn real tasks into quests. Earn gold from work you actually did, and buy the light back for a world that starts in the dark.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large" },
+  },
 };
 
 export const viewport = {

@@ -29,6 +29,7 @@ import type {
   ShopItem,
 } from "@/lib/game/types";
 import Celebration from "./Celebration";
+import OwnedMarks from "./OwnedMarks";
 import AmbiencePicker from "./AmbiencePicker";
 import {
   playAddQuest,
@@ -85,6 +86,7 @@ export default function Dashboard(props: Props) {
   const p = progress(profile.total_xp);
   const mult = momentum(profile.streak_current);
   const tier = profile.theme_tier;
+  const hasQuill = owned.has("trinket_quill");
 
   // Throttled so holding a key down does not machine-gun the speaker.
   const lastTick = useRef(0);
@@ -286,6 +288,7 @@ export default function Dashboard(props: Props) {
               <h1 className="font-display mt-1 text-3xl text-[var(--cream)] sm:text-4xl">
                 {profile.display_name}
               </h1>
+              <OwnedMarks owned={owned} streak={profile.streak_current} />
             </div>
             <div className="flex items-center gap-6">
               <Stat label="Gold" value={profile.gold.toLocaleString()} accent />
@@ -617,6 +620,7 @@ export default function Dashboard(props: Props) {
         <section aria-labelledby="history-heading">
           <h2 id="history-heading" className="font-micro mb-3 text-[var(--muted)]">
             Chronicle · last {props.completions.length}
+            {hasQuill ? " · fine hand" : ""}
           </h2>
           {props.completions.length === 0 ? (
             <p className="font-body text-sm">
@@ -628,10 +632,25 @@ export default function Dashboard(props: Props) {
               {props.completions.map((c) => (
                 <li
                   key={c.id}
-                  className="flex items-center gap-3 py-2 text-sm text-[var(--muted)]"
+                  className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2 text-sm text-[var(--muted)]"
                 >
                   <span className="font-micro tabular-nums">{c.completed_on}</span>
                   <span className="flex-1 text-[var(--cream)]">{c.title_at_time}</span>
+                  {/* The Ledger Quill buys a finer hand: the chronicle records
+                      the attribute, the multiplier and the gold, not just xp. */}
+                  {hasQuill && (
+                    <>
+                      <span className="font-micro text-[var(--steel)]">
+                        {ATTRIBUTE_LABEL[c.attribute]}
+                      </span>
+                      <span className="font-micro tabular-nums text-[var(--muted)]">
+                        {Number(c.multiplier).toFixed(2)}x
+                      </span>
+                      <span className="font-micro tabular-nums text-[var(--gold)]">
+                        +{c.gold_awarded}g
+                      </span>
+                    </>
+                  )}
                   <span className="font-micro tabular-nums text-[var(--amber)]">
                     +{c.xp_awarded}xp
                   </span>
