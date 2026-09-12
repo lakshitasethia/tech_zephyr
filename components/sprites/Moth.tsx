@@ -1,23 +1,27 @@
 import React from "react";
 import { SpriteRenderer, PixelColorMap } from "./SpriteRenderer";
 
+// Redesigned for legibility: wider wings with visible wing-shape,
+// more detail so it reads as a moth at small render size.
 const MOTH_GRID: string[] = [
-  ".........",
-  ".W.....W.",
-  "WWA...AWW",
-  ".WW.B.WW.",
-  "..W.B.W..",
-  "...BAB...",
-  "...WBW...",
-  "....W....",
-  ".........",
+  "..W.........W..",
+  ".WW.........WW.",
+  "WWA.........AWW",
+  "WWAA.......AAWW",
+  ".WWAB.....BAWW.",
+  "..WAB.BBB.BAW..",
+  "...WA.BGB.AW...",
+  "....W.BBB.W....",
+  "......BWB......",
+  ".......B.......",
+  "......B.B......",
 ];
 
 const MOTH_PALETTE: PixelColorMap = {
   W: "#F2ECE2", // Cream wings
   A: "#FFC46B", // Pale amber inner wing
   B: "#38271C", // Body
-  G: "#F0A44C", // Spark
+  G: "#F0A44C", // Spark core
 };
 
 interface MothProps {
@@ -44,8 +48,8 @@ export const Moth: React.FC<MothProps> = ({
       className={`pointer-events-none absolute ${className}`}
       id={id}
       style={{
-        width: `${9 * scale}px`,
-        height: `${9 * scale}px`,
+        width: `${15 * scale}px`,
+        height: `${11 * scale}px`,
         ...style,
       }}
       aria-hidden="true"

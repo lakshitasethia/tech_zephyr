@@ -1,16 +1,16 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Preloader } from "@/components/Preloader";
-import { Cinematic } from "@/components/Cinematic";
-import { Navbar } from "@/components/Navbar";
-import { Hero } from "@/components/Hero";
-import { HowItWorks } from "@/components/HowItWorks";
-import { ShopTiers } from "@/components/ShopTiers";
-import { Attributes } from "@/components/Attributes";
-import { Campaigns } from "@/components/Campaigns";
-import { FinalCTA } from "@/components/FinalCTA";
-import { Footer } from "@/components/Footer";
+import { Preloader } from "@/components/landing/Preloader";
+import { Cinematic } from "@/components/landing/Cinematic";
+import { Navbar } from "@/components/landing/Navbar";
+import { Hero } from "@/components/landing/Hero";
+import { HowItWorks } from "@/components/landing/HowItWorks";
+import { ShopTiers } from "@/components/landing/ShopTiers";
+import { Attributes } from "@/components/landing/Attributes";
+import { Campaigns } from "@/components/landing/Campaigns";
+import { FinalCTA } from "@/components/landing/FinalCTA";
+import { Footer } from "@/components/landing/Footer";
 import { initSmoothScroll, initBackgroundTransitions } from "@/lib/animations/gsapSetup";
 
 export default function LandingPage() {

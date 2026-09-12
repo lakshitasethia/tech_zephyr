@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { IdleOne } from "./sprites/IdleOne";
-import { Lampbearer } from "./sprites/Lampbearer";
+import { IdleOne } from "@/components/sprites/IdleOne";
+import { Lampbearer } from "@/components/sprites/Lampbearer";
 
 export const HowItWorks: React.FC = () => {
   const sectionRef = useRef<HTMLDivElement | null>(null);
@@ -55,14 +55,32 @@ export const HowItWorks: React.FC = () => {
     } catch {}
   };
 
+  // Keyboard control for the slider
+  const onSliderKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        setSliderPos((prev) => Math.max(0, prev - 3));
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        setSliderPos((prev) => Math.min(100, prev + 3));
+      }
+    },
+    []
+  );
+
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     const fullText = "Read 20 pages of DDIA";
     let charIndex = 0;
     let typingInterval: NodeJS.Timeout;
+    let panel1Triggered = false;
+    let panel2Triggered = false;
 
     const triggerPanel1 = () => {
+      if (panel1Triggered) return;
+      panel1Triggered = true;
       setTypedText("");
       setTagVisible(false);
       setXpVisible(false);
@@ -82,6 +100,8 @@ export const HowItWorks: React.FC = () => {
     };
 
     const triggerPanel2 = () => {
+      if (panel2Triggered) return;
+      panel2Triggered = true;
       setCompleted(true);
       setBurstActive(true);
       setTimeout(() => setBurstActive(false), 900);
@@ -105,16 +125,16 @@ export const HowItWorks: React.FC = () => {
       const pinTrigger = ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top top",
-        end: () => `+=${window.innerWidth * 1.8}`,
+        end: () => `+=${window.innerWidth * 2}`,
         pin: true,
         scrub: 1,
         anticipatePin: 1,
         onUpdate: (self) => {
           const progress = self.progress;
 
-          // Horizontal translation
+          // Horizontal translation with leading/trailing padding
           if (trackRef.current) {
-            const maxScroll = trackRef.current.scrollWidth - window.innerWidth + 120;
+            const maxScroll = trackRef.current.scrollWidth - window.innerWidth + 200;
             trackRef.current.style.transform = `translateX(${-progress * maxScroll}px)`;
           }
 
@@ -125,10 +145,10 @@ export const HowItWorks: React.FC = () => {
           }
 
           // Trigger panel animations based on progress thresholds
-          if (progress > 0.08 && charIndex === 0) {
+          if (progress > 0.08) {
             triggerPanel1();
           }
-          if (progress > 0.42 && !completed) {
+          if (progress > 0.42) {
             triggerPanel2();
           }
         },
@@ -149,18 +169,18 @@ export const HowItWorks: React.FC = () => {
       clearInterval(typingInterval);
       mm.revert();
     };
-  }, [completed]);
+  }, []);
 
   return (
     <section
       id="how-it-works"
       ref={sectionRef}
-      className="relative min-h-screen py-24 px-6 sm:px-8 overflow-hidden flex flex-col justify-center"
+      className="relative py-20 sm:py-24 px-6 sm:px-8 overflow-hidden"
       aria-label="How It Works"
     >
       {/* Section Header */}
-      <div className="max-w-7xl mx-auto w-full mb-12 lg:mb-16">
-        <div className="font-micro text-amber text-[11px] tracking-micro mb-3 uppercase flex items-center gap-2">
+      <div className="max-w-7xl mx-auto w-full mb-12 lg:mb-14">
+        <div className="font-micro text-amber tracking-micro mb-3 flex items-center gap-2">
           <span className="w-1.5 h-1.5 bg-amber inline-block shrink-0" />
           THE THREE STEPS
         </div>
@@ -169,61 +189,47 @@ export const HowItWorks: React.FC = () => {
         </h2>
       </div>
 
-      {/* SVG Connecting dotted amber line with square nodes */}
-      <div className="hidden lg:block absolute top-[52%] left-0 w-full pointer-events-none z-0">
-        <svg width="100%" height="40" className="overflow-visible" aria-hidden="true">
-          <path
-            ref={pathRef}
-            d="M 100 20 L 3200 20"
-            stroke="#F0A44C"
-            strokeWidth="2"
-            strokeDasharray="4 6"
-            fill="none"
-          />
-        </svg>
-      </div>
-
       {/* Horizontal Track Container */}
       <div ref={containerRef} className="w-full overflow-visible">
         <div
           ref={trackRef}
-          className="flex flex-col lg:flex-row gap-16 lg:gap-32 w-full transition-transform duration-75 ease-out"
+          className="flex flex-col lg:flex-row gap-12 lg:gap-16 w-full transition-transform duration-75 ease-out lg:pl-8 lg:pr-16"
         >
           {/* PANEL 1: ADD A QUEST */}
-          <div className="w-full lg:w-[620px] shrink-0 bg-[#0A0F1C]/90 p-8 sm:p-10 flex flex-col justify-between border-none relative z-10">
+          <div className="w-full lg:w-[560px] lg:min-h-[480px] shrink-0 bg-[#0A0F1C]/90 p-7 sm:p-9 flex flex-col justify-between relative z-10">
             <div>
-              <div className="flex items-center gap-3 mb-6">
-                <span className="w-3 h-3 bg-amber inline-block pixel-crisp" />
-                <span className="font-micro text-xs text-amber tracking-micro">PANEL 01</span>
+              <div className="flex items-center gap-3 mb-5">
+                <span className="w-3 h-3 bg-amber inline-block pixel-crisp" style={{ borderRadius: "0px" }} />
+                <span className="font-micro text-amber tracking-micro">PANEL 01</span>
               </div>
               <h3 className="font-display text-2xl sm:text-3xl font-bold text-cream mb-4">
                 ADD A QUEST
               </h3>
-              <p className="font-body text-sm text-muted mb-8 leading-relaxed">
+              <p className="font-body text-muted mb-8">
                 Type the actual work you need to do. Attach an attribute tag. Set the XP weight.
               </p>
 
               {/* Pixel Styled Input Mock */}
-              <div className="bg-[#101829] p-5 flex flex-col gap-4">
-                <div className="font-micro text-[10px] text-muted tracking-micro uppercase flex justify-between">
+              <div className="bg-[#101829] p-4 sm:p-5 flex flex-col gap-4">
+                <div className="font-micro text-muted tracking-micro flex justify-between" style={{ fontSize: "11px" }}>
                   <span>NEW_TASK_ENTRY</span>
                   <span className="text-amber">[ACTIVE]</span>
                 </div>
 
                 <div className="flex items-center justify-between gap-3 bg-[#06070B] px-4 py-3 min-h-[48px]">
-                  <div className="font-mono text-sm text-cream flex items-center">
-                    <span>{typedText}</span>
-                    <span className="inline-block w-2 h-4 bg-amber ml-1 animate-pulse" />
+                  <div className="font-mono text-sm text-cream flex items-center min-w-0">
+                    <span className="truncate">{typedText}</span>
+                    <span className="inline-block w-2 h-4 bg-amber ml-1 shrink-0 animate-pulse" />
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 shrink-0">
                     {tagVisible && (
-                      <span className="font-micro text-[10px] bg-[#171C2E] text-steel px-2 py-1 tracking-micro animate-[bounce_0.2s_ease-out]">
+                      <span className="font-micro bg-[#171C2E] text-steel px-2 py-1 tracking-micro" style={{ fontSize: "11px" }}>
                         INTELLECT
                       </span>
                     )}
                     {xpVisible && (
-                      <span className="font-micro text-[10px] bg-amber text-void px-2 py-1 font-bold tracking-micro">
+                      <span className="font-micro bg-amber text-void px-2 py-1 font-bold tracking-micro" style={{ fontSize: "11px" }}>
                         +40 XP
                       </span>
                     )}
@@ -232,36 +238,37 @@ export const HowItWorks: React.FC = () => {
               </div>
             </div>
 
-            <div className="font-micro text-[10px] text-muted tracking-micro mt-6">
+            <div className="font-micro text-muted tracking-micro mt-6" style={{ fontSize: "11px" }}>
               INPUT REFLECTS DIRECT REAL-WORLD OUTPUT.
             </div>
           </div>
 
           {/* PANEL 2: COMPLETE IT */}
-          <div className="w-full lg:w-[620px] shrink-0 bg-[#0A0F1C]/90 p-8 sm:p-10 flex flex-col justify-between border-none relative z-10">
+          <div className="w-full lg:w-[560px] lg:min-h-[480px] shrink-0 bg-[#0A0F1C]/90 p-7 sm:p-9 flex flex-col justify-between relative z-10">
             <div>
-              <div className="flex items-center gap-3 mb-6">
-                <span className="w-3 h-3 bg-amber inline-block pixel-crisp" />
-                <span className="font-micro text-xs text-amber tracking-micro">PANEL 02</span>
+              <div className="flex items-center gap-3 mb-5">
+                <span className="w-3 h-3 bg-amber inline-block pixel-crisp" style={{ borderRadius: "0px" }} />
+                <span className="font-micro text-amber tracking-micro">PANEL 02</span>
               </div>
               <h3 className="font-display text-2xl sm:text-3xl font-bold text-cream mb-4">
                 COMPLETE IT
               </h3>
-              <p className="font-body text-sm text-muted mb-8 leading-relaxed">
+              <p className="font-body text-muted mb-8">
                 Check it off when finished. Eight amber sparks burst outward. Your attribute XP ticks up.
               </p>
 
               {/* Quest item row with sage completion */}
-              <div className="bg-[#101829] p-5 flex flex-col gap-5 relative">
+              <div className="bg-[#101829] p-4 sm:p-5 flex flex-col gap-5 relative">
                 <div className="flex items-center justify-between gap-4 bg-[#06070B] p-4 relative">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
                     {/* Sage checkbox */}
                     <button
                       type="button"
                       onClick={() => setCompleted(!completed)}
-                      className={`w-6 h-6 flex items-center justify-center cursor-pointer transition-colors duration-150 border-none ${
+                      className={`w-6 h-6 shrink-0 flex items-center justify-center cursor-pointer transition-colors duration-150 border-none ${
                         completed ? "bg-sage" : "bg-[#171C2E]"
                       }`}
+                      style={{ borderRadius: "0px" }}
                       aria-label="Toggle quest complete"
                     >
                       {completed && (
@@ -274,7 +281,7 @@ export const HowItWorks: React.FC = () => {
                       )}
                     </button>
                     <span
-                      className={`font-mono text-sm ${
+                      className={`font-mono text-sm truncate ${
                         completed ? "line-through text-muted" : "text-cream"
                       }`}
                     >
@@ -282,7 +289,7 @@ export const HowItWorks: React.FC = () => {
                     </span>
                   </div>
 
-                  <span className="font-micro text-[10px] text-sage tracking-micro">
+                  <span className="font-micro text-sage tracking-micro shrink-0" style={{ fontSize: "11px" }}>
                     COMPLETED
                   </span>
 
@@ -305,50 +312,57 @@ export const HowItWorks: React.FC = () => {
 
                 {/* XP Bar beneath advancing with ticking counter */}
                 <div className="flex flex-col gap-2">
-                  <div className="flex justify-between font-micro text-[10px] text-muted tracking-micro">
+                  <div className="flex justify-between font-micro text-muted tracking-micro" style={{ fontSize: "11px" }}>
                     <span>INTELLECT PROGRESS</span>
                     <span className="text-amber tabular-nums">{tickingXp} / 500 XP</span>
                   </div>
                   <div className="h-2 w-full bg-[#06070B]">
                     <div
                       className="h-full bg-amber transition-all duration-100"
-                      style={{ width: `${(tickingXp / 500) * 100}%` }}
+                      style={{ width: `${(tickingXp / 500) * 100}%`, borderRadius: "0px" }}
                     />
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="font-micro text-[10px] text-muted tracking-micro mt-6">
+            <div className="font-micro text-muted tracking-micro mt-6" style={{ fontSize: "11px" }}>
               SAGE ACCENTS SIGNAL VERIFIED TASK COMPLETION.
             </div>
           </div>
 
           {/* PANEL 3: THE WORLD CHANGES */}
-          <div className="w-full lg:w-[680px] shrink-0 bg-[#0A0F1C]/90 p-8 sm:p-10 flex flex-col justify-between border-none relative z-10">
+          <div className="w-full lg:w-[560px] lg:min-h-[480px] shrink-0 bg-[#0A0F1C]/90 p-7 sm:p-9 flex flex-col justify-between relative z-10">
             <div>
-              <div className="flex items-center gap-3 mb-6">
-                <span className="w-3 h-3 bg-amber inline-block pixel-crisp" />
-                <span className="font-micro text-xs text-amber tracking-micro">PANEL 03</span>
+              <div className="flex items-center gap-3 mb-5">
+                <span className="w-3 h-3 bg-amber inline-block pixel-crisp" style={{ borderRadius: "0px" }} />
+                <span className="font-micro text-amber tracking-micro">PANEL 03</span>
               </div>
               <h3 className="font-display text-2xl sm:text-3xl font-bold text-cream mb-4">
                 THE WORLD CHANGES
               </h3>
-              <p className="font-body text-sm text-muted mb-6 leading-relaxed">
+              <p className="font-body text-muted mb-6">
                 Drag the divider below. See the cold desaturated void illuminate into warm lamplight.
               </p>
 
-              {/* Interactive Comparison Slider */}
+              {/* Interactive Comparison Slider - keyboard operable */}
               <div
                 ref={sliderContainerRef}
                 onPointerDown={onPointerDown}
                 onPointerMove={onPointerMove}
                 onPointerUp={onPointerUp}
+                onKeyDown={onSliderKeyDown}
+                role="slider"
+                aria-label="Light progression comparison"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.round(sliderPos)}
+                tabIndex={0}
                 className="relative h-[220px] w-full select-none cursor-ew-resize overflow-hidden touch-none"
               >
                 {/* WARM RIGHT SIDE (FULL WIDTH BACKGROUND) */}
                 <div
-                  className="absolute inset-0 p-6 flex flex-col justify-between"
+                  className="absolute inset-0 p-5 sm:p-6 flex flex-col justify-between"
                   style={{
                     backgroundColor: "#2C2128",
                     backgroundImage:
@@ -356,10 +370,10 @@ export const HowItWorks: React.FC = () => {
                   }}
                 >
                   <div className="flex justify-between items-center">
-                    <span className="font-micro text-[10px] text-gold tracking-micro">
+                    <span className="font-micro text-gold tracking-micro" style={{ fontSize: "11px" }}>
                       [TIER 3: ASCENDANT]
                     </span>
-                    <span className="font-micro text-[10px] text-amber tracking-micro">
+                    <span className="font-micro text-amber tracking-micro" style={{ fontSize: "11px" }}>
                       WORLD LIT
                     </span>
                   </div>
@@ -367,27 +381,27 @@ export const HowItWorks: React.FC = () => {
                     <Lampbearer scale={3} glowing={true} />
                     <div>
                       <div className="font-display text-lg text-cream font-bold">WARM REALM</div>
-                      <div className="font-micro text-[9px] text-amber">GOLD SHINES ON ALL QUESTS</div>
+                      <div className="font-micro text-amber" style={{ fontSize: "10px" }}>GOLD SHINES ON ALL QUESTS</div>
                     </div>
                   </div>
-                  <div className="font-micro text-[9px] text-muted tracking-micro">
+                  <div className="font-micro text-muted tracking-micro" style={{ fontSize: "10px" }}>
                     ALL INTERFACES WARMED BY PROGRESS
                   </div>
                 </div>
 
                 {/* COLD LEFT SIDE (CLIPPED BY SLIDER POSITION) */}
                 <div
-                  className="absolute inset-0 p-6 flex flex-col justify-between bg-[#06070B]"
+                  className="absolute inset-0 p-5 sm:p-6 flex flex-col justify-between bg-[#06070B]"
                   style={{
                     clipPath: `polygon(0 0, ${sliderPos}% 0, ${sliderPos}% 100%, 0 100%)`,
                     filter: "grayscale(100%) brightness(0.7)",
                   }}
                 >
                   <div className="flex justify-between items-center">
-                    <span className="font-micro text-[10px] text-muted tracking-micro">
+                    <span className="font-micro text-muted tracking-micro" style={{ fontSize: "11px" }}>
                       [TIER 0: COLD START]
                     </span>
-                    <span className="font-micro text-[10px] text-muted tracking-micro">
+                    <span className="font-micro text-muted tracking-micro" style={{ fontSize: "11px" }}>
                       WORLD DARK
                     </span>
                   </div>
@@ -395,10 +409,10 @@ export const HowItWorks: React.FC = () => {
                     <IdleOne scale={3} />
                     <div>
                       <div className="font-display text-lg text-muted font-bold">DESOLATE VOID</div>
-                      <div className="font-micro text-[9px] text-muted">UNLIT LANTERN</div>
+                      <div className="font-micro text-muted" style={{ fontSize: "10px" }}>UNLIT LANTERN</div>
                     </div>
                   </div>
-                  <div className="font-micro text-[9px] text-muted tracking-micro">
+                  <div className="font-micro text-muted tracking-micro" style={{ fontSize: "10px" }}>
                     STARTING STATE FOR EVERY TRAVELER
                   </div>
                 </div>
@@ -408,7 +422,10 @@ export const HowItWorks: React.FC = () => {
                   className="absolute top-0 bottom-0 w-[2px] bg-amber z-30 pointer-events-none"
                   style={{ left: `${sliderPos}%` }}
                 >
-                  <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-6 h-6 bg-amber flex items-center justify-center text-void">
+                  <div
+                    className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-6 h-6 bg-amber flex items-center justify-center text-void"
+                    style={{ borderRadius: "0px" }}
+                  >
                     <svg width="12" height="12" viewBox="0 0 12 12" className="pixel-crisp">
                       <rect x="1" y="5" width="2" height="2" fill="#06070B" />
                       <rect x="9" y="5" width="2" height="2" fill="#06070B" />
@@ -419,7 +436,7 @@ export const HowItWorks: React.FC = () => {
               </div>
             </div>
 
-            <div className="font-micro text-[10px] text-amber tracking-micro mt-6">
+            <div className="font-micro text-amber tracking-micro mt-6" style={{ fontSize: "11px" }}>
               DRAG TO COMPARE THE LIGHT ARC.
             </div>
           </div>

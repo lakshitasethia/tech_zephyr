@@ -29,15 +29,15 @@ const LAMPBEARER_GRID: string[] = [
 ];
 
 const LAMPBEARER_PALETTE: PixelColorMap = {
-  H: "#0E1424", // Deep indigo hood shadow
-  C: "#182238", // Cloak indigo
+  H: "#080C18", // Deepest hood shadow
+  C: "#152035", // Cloak mid-tone
   L: "#253456", // Highlight fold
-  F: "#82756A", // Hooded face recess
+  F: "#9A8D7E", // Face visible in hood opening
   M: "#2A201C", // Lantern brass frame
   P: "#42322A", // Arm / handle
-  A: "#F0A44C", // Amber lantern flame
-  G: "#FFC46B", // Gold core
-  B: "#090D17", // Boots / traveler greaves
+  A: "#F0A44C", // Amber lantern flame (brightest element)
+  G: "#FFD580", // Gold core highlight
+  B: "#060A14", // Boots / traveler greaves
 };
 
 interface LampbearerProps {

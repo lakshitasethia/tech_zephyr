@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Warden } from "./sprites/Warden";
+import { Warden } from "@/components/sprites/Warden";
 
 interface Stage {
   num: string;
@@ -81,7 +81,7 @@ export const Campaigns: React.FC = () => {
       <div className="max-w-7xl mx-auto w-full">
         {/* Section Header */}
         <div className="mb-16">
-          <div className="font-micro text-amber text-[11px] tracking-micro mb-3 uppercase flex items-center gap-2">
+          <div className="font-micro text-amber tracking-micro mb-3 flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-amber inline-block shrink-0" />
             EPIC OBJECTIVES
           </div>
@@ -118,7 +118,7 @@ export const Campaigns: React.FC = () => {
 
           {/* Right: Campaigns description and 4-stage vertical list */}
           <div className="lg:col-span-7 flex flex-col">
-            <p className="font-body text-base sm:text-lg text-muted mb-10 leading-relaxed max-w-[60ch]">
+            <p className="font-body text-muted mb-10">
               Large initiatives cannot be defeated in one sitting. Break large
               projects into Campaigns with discrete milestones. Each stage deals
               tangible damage to the Warden until the climactic completion.

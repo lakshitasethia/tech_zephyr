@@ -1,43 +1,46 @@
 import React from "react";
 import { SpriteRenderer, PixelColorMap } from "./SpriteRenderer";
 
+// Redesigned for menace: broader shoulders, narrower head, sharper edges,
+// helmet crest, darker body with only the eyes warm.
 const WARDEN_GRID: string[] = [
-  "............AAAA....AAAA............",
-  "...........AAAAAA..AAAAAA...........",
-  "..........AAAAAAAAAAAAAAAA..........",
-  "..........AAAAAAAAAAAAAAAA..........",
-  ".........AAAAAAAAAAAAAAAAAA.........",
-  ".........AAAAAAAAAAAAAAAAAA.........",
-  "........AAAAA..AAAAAA..AAAAA........",
-  "........AAAA....AAAA....AAAA........",
-  "........AAAA..E.AAAA.E..AAAA........",
-  "........AAAAA.EAAAAAAE.AAAAA........",
-  ".........AAAAAAAAAAAAAAAAAA.........",
-  ".........AAAA..AAAAAA..AAAA.........",
-  "..........AAAA........AAAA..........",
-  ".........AAAAAA......AAAAAA.........",
-  ".......AAAAAAAAAAAAAAA.AAAAAA.......",
-  ".....AAAAAAAAAAAAAAAAAAAAAAAAAA.....",
-  "....AAAAAAAAAAAAAAAAAAAAAAAAAAAA....",
-  "...AAAA...AAAAAAAAAAAAAAAA...AAAA...",
-  "..AAAA.....AAAAAAAAAAAAAA.....AAAA..",
-  "..AAA.......AAAAAAAAAAAA.......AAA..",
-  "..AAA.......AAAAAAAAAAAA.......AAA..",
-  "..AAA........AAAAAAAAAA........AAA..",
-  ".............AAAAAAAAAA.............",
-  "............AAAAAAAAAAAA............",
-  "............AAAAAAAAAAAA............",
-  "...........AAAAAAAAAAAAAA...........",
-  "...........AAAAA....AAAAA...........",
-  "...........AAAA......AAAA...........",
-  "..........AAAAA......AAAAA..........",
-  "..........AAAA........AAAA..........",
-  ".........AAAAA........AAAAA.........",
-  "........AAAAAA........AAAAAA........",
+  "..............SSSS....................",
+  ".............SSSSSS...................",
+  "............SSSSSSSS..................",
+  "...........SSAAAAAAAS.................",
+  "..........SAAAAAAAAAA.................",
+  "..........SAAAAAAAAAA.................",
+  ".........SAAAA..AAAAA.................",
+  ".........SAAA....AAAA.................",
+  ".........SAAA.E..AAAA.................",
+  ".........SAAAA.EAAAAA.................",
+  "..........AAAAAAAAAA..................",
+  "..........AAAA....AAA.................",
+  "...........AAA....AAA.................",
+  "..........AAAAA..AAAAA................",
+  "........AAAAAAAAAAAAAAA...............",
+  "......AAAAAAAAAAAAAAAAAAA.............",
+  "....SAAAAAAAAAAAAAAAAAAAAAS...........",
+  "...SAAAAAAAAAAAAAAAAAAAAAAAAS.........",
+  "..SAAAA....AAAAAAAAAAA....AAAAS......",
+  ".SAAAA......AAAAAAAAA......AAAAS.....",
+  ".SAAA........AAAAAAA........AAAS.....",
+  ".SAAA........AAAAAAA........AAAS.....",
+  ".SAAA.........AAAAA.........AAAS.....",
+  "..............AAAAA...................",
+  ".............AAAAAAA..................",
+  ".............AAAAAAA..................",
+  "............AAAAAAAAA.................",
+  "............AAAA.AAAA.................",
+  "...........AAAA...AAAA...............",
+  "..........AAAAA...AAAAA..............",
+  ".........AAAAA.....AAAAA.............",
+  "........AAAAAA.....AAAAAA............",
 ];
 
 const WARDEN_PALETTE: PixelColorMap = {
-  A: "#131B2E", // Dark heavy armor
+  A: "#0C1221", // Darker heavy armor
+  S: "#060A14", // Shadow edges / helmet spikes
   E: "#F0A44C", // Glowing amber eye pixels
 };
 
@@ -89,7 +92,7 @@ export const Warden: React.FC<WardenProps> = ({
         className="pointer-events-none absolute -inset-6"
         style={{
           background:
-            "radial-gradient(ellipse at center, rgba(16, 24, 41, 0.7) 0%, transparent 70%)",
+            "radial-gradient(ellipse at center, rgba(6, 10, 20, 0.8) 0%, transparent 70%)",
           zIndex: 0,
         }}
         aria-hidden="true"

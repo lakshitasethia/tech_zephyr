@@ -207,15 +207,22 @@ app/
   login/  signup/       auth screens
   play/                 the application, server rendered per request
 components/
-  auth/                 auth form
-  play/                 dashboard, level up celebration, tier stylesheet
+  landing/              landing page sections: hero, shop tiers, footer
   sprites/              pixel characters, drawn as code
+  canvas/               ember particle field
+  play/                 dashboard, level up celebration, tier stylesheet
+  auth/                 auth form
 lib/
   supabase/             server, browser and middleware clients
   game/                 rules, types, queries
   actions/              server actions: quests, shop, auth
+  animations/           GSAP setup, scroll triggers, text reveals
 supabase/
   migrations/0001_init.sql   the entire database
+docs/
+  requirements.txt      the hackathon brief
+  research.md           competitive research with sources
+  DESIGN_NOTES.md       fonts, eases, tokens
 middleware.ts           session refresh and route protection
 ```
 
@@ -225,7 +232,7 @@ middleware.ts           session refresh and route protection
 
 Parts of this project were built with AI coding assistants. The landing page UI
 was generated with Gemini in Antigravity from a written design brief
-(`gemini-ui-prompt.md`, kept in the repository). The database schema, security
+(`docs/gemini-ui-prompt.md`, kept in the repository). The database schema, security
 model, server actions and application dashboard were built with Claude. Research
-into the competitive landscape is documented in `research.md` with sources.
+into the competitive landscape is documented in `docs/research.md` with sources.
 Commits carry co-author trailers where an assistant contributed.

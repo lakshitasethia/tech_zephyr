@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { Lampbearer } from "./sprites/Lampbearer";
-import { Moth } from "./sprites/Moth";
-import { EmberCanvas } from "./canvas/EmberCanvas";
+import { Lampbearer } from "@/components/sprites/Lampbearer";
+import { Moth } from "@/components/sprites/Moth";
+import { EmberCanvas } from "@/components/canvas/EmberCanvas";
 import { attachMagneticHover } from "@/lib/animations/gsapSetup";
 
 interface FinalCTAProps {
@@ -31,12 +31,15 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ onStartQuest }) => {
         <EmberCanvas count={80} direction="upward" />
       </div>
 
-      {/* Wide warm pool of volumetric light */}
+      {/* Wide warm pool of volumetric light - soft outer edge */}
       <div
-        className="pointer-events-none absolute w-[600px] h-[600px] rounded-full"
+        className="pointer-events-none absolute"
         style={{
+          width: "700px",
+          height: "700px",
           background:
-            "radial-gradient(circle, rgba(255, 196, 107, 0.28) 0%, rgba(240, 164, 76, 0.12) 45%, transparent 75%)",
+            "radial-gradient(circle, rgba(255, 196, 107, 0.24) 0%, rgba(240, 164, 76, 0.10) 35%, rgba(240, 164, 76, 0.03) 55%, transparent 72%)",
+          borderRadius: "50%",
           zIndex: 1,
         }}
         aria-hidden="true"
@@ -44,22 +47,22 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ onStartQuest }) => {
 
       <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center">
         {/* Lampbearer at larger scale with multiple moths circling */}
-        <div className="relative mb-12">
+        <div className="relative mb-20 sm:mb-24">
           <Lampbearer scale={7} glowing={true} />
 
           {/* Primary Moth */}
           <div className="absolute top-12 -right-4">
-            <Moth scale={3} orbitRadiusX={64} orbitRadiusY={36} duration={5.8} />
+            <Moth scale={4} orbitRadiusX={64} orbitRadiusY={36} duration={5.8} />
           </div>
 
           {/* Second Moth with offset trajectory */}
           <div className="absolute top-8 -left-6">
-            <Moth scale={2} orbitRadiusX={-50} orbitRadiusY={28} duration={7.2} />
+            <Moth scale={3} orbitRadiusX={-50} orbitRadiusY={28} duration={7.2} />
           </div>
 
           {/* Third Moth */}
           <div className="absolute -top-4 right-10">
-            <Moth scale={2} orbitRadiusX={40} orbitRadiusY={-30} duration={6.4} />
+            <Moth scale={3} orbitRadiusX={40} orbitRadiusY={-30} duration={6.4} />
           </div>
         </div>
 
@@ -69,7 +72,7 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ onStartQuest }) => {
         </h2>
 
         {/* One line of body copy */}
-        <p className="font-body text-lg sm:text-xl text-cream/90 max-w-[55ch] mb-10 leading-relaxed">
+        <p className="font-body text-cream/90 max-w-[55ch] mb-10">
           Open your quest log, commit your first task, and claim your lantern.
         </p>
 
@@ -78,7 +81,7 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ onStartQuest }) => {
           ref={btnRef}
           type="button"
           onClick={onStartQuest}
-          className="pixel-btn-amber text-xs sm:text-sm py-4 px-10 tracking-micro shadow-2xl"
+          className="pixel-btn-amber py-4 px-10 tracking-micro shadow-2xl"
         >
           START A QUEST
         </button>

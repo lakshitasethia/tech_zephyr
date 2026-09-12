@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { Lampbearer } from "./sprites/Lampbearer";
-import { EmberCanvas } from "./canvas/EmberCanvas";
+import { Lampbearer } from "@/components/sprites/Lampbearer";
+import { EmberCanvas } from "@/components/canvas/EmberCanvas";
 
 interface CinematicProps {
   onComplete: () => void;

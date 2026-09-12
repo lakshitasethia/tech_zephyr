@@ -96,7 +96,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartQuest }) => {
               <a
                 key={link.name}
                 href={link.href}
-                className={`font-micro text-[11px] tracking-micro nav-link-draw ${
+                className={`font-micro tracking-micro nav-link-draw ${
                   isActive ? "active" : ""
                 }`}
               >
@@ -110,7 +110,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartQuest }) => {
         <div className="hidden md:flex items-center gap-6">
           <a
             href="#hero"
-            className="font-micro text-[11px] tracking-micro text-muted hover:text-cream transition-colors duration-150 focus-visible:outline-amber"
+            className="font-micro tracking-micro text-muted hover:text-cream transition-colors duration-150 focus-visible:outline-amber"
           >
             LOG IN
           </a>
@@ -118,7 +118,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartQuest }) => {
             ref={questBtnRef}
             type="button"
             onClick={onStartQuest}
-            className="pixel-btn-amber font-micro text-[11px] tracking-micro"
+            className="pixel-btn-amber"
           >
             START A QUEST
           </button>

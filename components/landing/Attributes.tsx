@@ -88,9 +88,9 @@ export const Attributes: React.FC = () => {
     >
       <div className="max-w-7xl mx-auto w-full">
         {/* Section Header */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-end mb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-end mb-20 sm:mb-24">
           <div className="lg:col-span-7">
-            <div className="font-micro text-amber text-[11px] tracking-micro mb-3 uppercase flex items-center gap-2">
+            <div className="font-micro text-amber tracking-micro mb-3 flex items-center gap-2">
               <span className="w-1.5 h-1.5 bg-amber inline-block shrink-0" />
               CHARACTER CORE
             </div>
@@ -100,7 +100,7 @@ export const Attributes: React.FC = () => {
           </div>
 
           <div className="lg:col-span-5">
-            <p className="font-body text-base text-muted leading-relaxed">
+            <p className="font-body text-muted">
               Quest categories feed specific attributes directly. You do not
               level up an abstract score. Your discipline rises when you hold
               your habits. Your intellect grows when you read difficult texts.
@@ -121,7 +121,7 @@ export const Attributes: React.FC = () => {
               >
                 {/* Left: Silkscreen Name & Subtext */}
                 <div className="md:w-48 shrink-0">
-                  <div className="font-micro text-xs sm:text-sm tracking-micro text-cream uppercase font-bold mb-1">
+                  <div className="font-micro text-sm tracking-micro text-cream uppercase font-bold mb-1">
                     {attr.name}
                   </div>
                   <div className="font-mono text-[11px] text-muted">
@@ -137,7 +137,7 @@ export const Attributes: React.FC = () => {
                       return (
                         <div
                           key={blockIdx}
-                          className="w-[8px] h-[20px] transition-colors duration-75 pixel-crisp"
+                          className="w-[10px] h-[24px] transition-colors duration-75 pixel-crisp"
                           style={{
                             backgroundColor: isBlockFilled ? attr.color : "#101829",
                             opacity: isBlockFilled ? 1 : 0.4,
