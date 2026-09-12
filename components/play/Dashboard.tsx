@@ -24,6 +24,8 @@ import type {
   ShopItem,
 } from "@/lib/game/types";
 import Celebration from "./Celebration";
+import AmbiencePicker from "./AmbiencePicker";
+import { playKeyTick } from "@/lib/audio/ambience";
 import "./tiers.css";
 
 interface Props {
@@ -44,6 +46,7 @@ export default function Dashboard(props: Props) {
   const [owned, setOwned] = useState(new Set(props.owned));
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [celebration, setCelebration] = useState<number | null>(null);
+  const [flash, setFlash] = useState(0);
   const [pending, startTransition] = useTransition();
   const toastId = useRef(0);
 
@@ -65,6 +68,16 @@ export default function Dashboard(props: Props) {
   const p = progress(profile.total_xp);
   const mult = momentum(profile.streak_current);
   const tier = profile.theme_tier;
+
+  // Throttled so holding a key down does not machine-gun the speaker.
+  const lastTick = useRef(0);
+  function onQuestKey(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key.length !== 1 && e.key !== "Backspace") return;
+    const now = performance.now();
+    if (now - lastTick.current < 45) return;
+    lastTick.current = now;
+    playKeyTick();
+  }
 
   function toast(text: string, tone: "good" | "bad" = "good") {
     const id = ++toastId.current;
@@ -158,11 +171,14 @@ export default function Dashboard(props: Props) {
         return;
       }
       setOwned((prev) => new Set(prev).add(item.code));
+      const tierChanged = res.data.theme_tier !== profile.theme_tier;
       setProfile((prev) => ({
         ...prev,
         gold: res.data.gold,
         theme_tier: res.data.theme_tier,
       }));
+      // A tier purchase should read as an event, not a silent recolour.
+      if (tierChanged) setFlash((n) => n + 1);
       toast(
         item.grants_tier !== null
           ? `${item.name} unlocked. The world warms.`
@@ -176,6 +192,8 @@ export default function Dashboard(props: Props) {
       {celebration !== null && (
         <Celebration level={celebration} onDone={() => setCelebration(null)} />
       )}
+
+      {flash > 0 && <div key={flash} className="tier-flash" aria-hidden="true" />}
 
       {/* Toasts */}
       <div
@@ -212,6 +230,7 @@ export default function Dashboard(props: Props) {
               <Stat label="Gold" value={profile.gold.toLocaleString()} accent />
               <Stat label="Streak" value={`${profile.streak_current}d`} />
               <Stat label="Momentum" value={`${mult.toFixed(2)}x`} accent />
+              <AmbiencePicker />
               {/* A real HTML form posting to a route handler, not a Server
                   Action. As <form action={signOut}> React rendered an empty
                   action attribute and no request ever reached the server.
@@ -267,6 +286,7 @@ export default function Dashboard(props: Props) {
               maxLength={140}
               placeholder="Read 20 pages"
               aria-label="Quest name"
+              onKeyDown={onQuestKey}
               className="flex-1 bg-transparent px-2 py-2 text-[var(--cream)] outline-none placeholder:text-[var(--muted)]/60"
             />
             <select

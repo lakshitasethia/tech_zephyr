@@ -7,6 +7,9 @@
  * Everything wrapped in try/catch so audio never breaks the page.
  */
 
+/** Master output level. 0.15 was far too quiet for the typewriter to register. */
+const MASTER_LEVEL = 0.42;
+
 let _ctx: AudioContext | null = null;
 let _masterGain: GainNode | null = null;
 
@@ -23,7 +26,7 @@ export function setMuted(val: boolean): void {
   if (typeof window === "undefined") return;
   localStorage.setItem(getMuteKey(), val ? "true" : "false");
   if (_masterGain) {
-    _masterGain.gain.value = val ? 0 : 0.15;
+    _masterGain.gain.value = val ? 0 : MASTER_LEVEL;
   }
 }
 
@@ -39,7 +42,7 @@ export function initAudio(): boolean {
   try {
     _ctx = new AudioContext();
     _masterGain = _ctx.createGain();
-    _masterGain.gain.value = isMuted() ? 0 : 0.15;
+    _masterGain.gain.value = isMuted() ? 0 : MASTER_LEVEL;
     _masterGain.connect(_ctx.destination);
     return true;
   } catch {
@@ -58,7 +61,7 @@ export function playTypeBlip(): void {
     osc.type = Math.random() > 0.5 ? "square" : "triangle";
     osc.frequency.value = 900 + Math.random() * 500;
     const dur = 0.008 + Math.random() * 0.006;
-    gain.gain.setValueAtTime(0.08, _ctx.currentTime);
+    gain.gain.setValueAtTime(0.22, _ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, _ctx.currentTime + dur);
     osc.connect(gain);
     gain.connect(_masterGain);
@@ -76,7 +79,7 @@ export function playThunk(): void {
     osc.type = "triangle";
     osc.frequency.value = 400 + Math.random() * 200;
     const dur = 0.025;
-    gain.gain.setValueAtTime(0.12, _ctx.currentTime);
+    gain.gain.setValueAtTime(0.30, _ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, _ctx.currentTime + dur);
     osc.connect(gain);
     gain.connect(_masterGain);

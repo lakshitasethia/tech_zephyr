@@ -141,7 +141,7 @@ export const IntroSequence: React.FC<IntroSequenceProps> = ({ onComplete }) => {
             finish();
           }, 450);
           timersRef.current.push(tDone);
-        }, 500);
+        }, 900);
         timersRef.current.push(tHold);
         return;
       }
@@ -159,13 +159,13 @@ export const IntroSequence: React.FC<IntroSequenceProps> = ({ onComplete }) => {
             playTypeBlip();
           }
 
-          const jitter = 20 + Math.random() * 8;
+          const jitter = 52 + Math.random() * 26;
           const t = setTimeout(typeNext, jitter);
           timersRef.current.push(t);
         } else {
           currentLine = 2;
           lineCharIdx = 0;
-          const t = setTimeout(typeNext, 250);
+          const t = setTimeout(typeNext, 620);
           timersRef.current.push(t);
         }
       } else {
@@ -181,7 +181,7 @@ export const IntroSequence: React.FC<IntroSequenceProps> = ({ onComplete }) => {
             playTypeBlip();
           }
 
-          const jitter = 20 + Math.random() * 8;
+          const jitter = 52 + Math.random() * 26;
           const t = setTimeout(typeNext, jitter);
           timersRef.current.push(t);
         } else {

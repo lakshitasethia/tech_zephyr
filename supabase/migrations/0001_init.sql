@@ -562,3 +562,17 @@ grant execute on function public.complete_quest(uuid, public.completion_source) 
 grant execute on function public.purchase_item(text) to authenticated;
 grant execute on function public.base_xp(public.quest_difficulty) to authenticated;
 grant execute on function public.momentum(integer) to authenticated;
+
+-- ---------------------------------------------------------------------------
+-- Repricing. The tiers were originally priced so high that nobody reached one
+-- in a normal session: a few quests earn roughly 40 to 160 gold while tier 1
+-- cost 400, so the signature mechanic was never actually seen. Tier 1 now
+-- lands after about three quests.
+-- ---------------------------------------------------------------------------
+update public.shop_items set cost_gold = 120, min_level = 1 where code = 'tier_lamplight';
+update public.shop_items set cost_gold = 400, min_level = 3 where code = 'tier_bloom';
+update public.shop_items set cost_gold = 900, min_level = 6 where code = 'tier_ascendant';
+update public.shop_items set cost_gold =  40, min_level = 1 where code = 'badge_firstblood';
+update public.shop_items set cost_gold = 150, min_level = 2 where code = 'badge_ironweek';
+update public.shop_items set cost_gold =  80, min_level = 1 where code = 'trinket_moth';
+update public.shop_items set cost_gold = 200, min_level = 3 where code = 'trinket_quill';

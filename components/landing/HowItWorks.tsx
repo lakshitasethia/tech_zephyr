@@ -122,40 +122,61 @@ export const HowItWorks: React.FC = () => {
     const mm = gsap.matchMedia();
 
     mm.add("(min-width: 900px)", () => {
-      const pinTrigger = ScrollTrigger.create({
-        trigger: sectionRef.current,
-        start: "top top",
-        end: () => `+=${window.innerWidth * 2}`,
-        pin: true,
-        scrub: 1,
-        anticipatePin: 1,
-        onUpdate: (self) => {
-          const progress = self.progress;
+      const track = trackRef.current;
+      const path = pathRef.current;
+      if (!track) return;
 
-          // Horizontal translation with leading/trailing padding
-          if (trackRef.current) {
-            const maxScroll = trackRef.current.scrollWidth - window.innerWidth + 200;
-            trackRef.current.style.transform = `translateX(${-progress * maxScroll}px)`;
-          }
+      // Distance the track has to travel, plus a trailing rest so the last
+      // panel settles fully before the section unpins.
+      const distance = () =>
+        Math.max(0, track.scrollWidth - window.innerWidth + 220);
 
-          // Connecting line dash offset
-          if (pathRef.current) {
-            const length = pathRef.current.getTotalLength();
-            pathRef.current.style.strokeDashoffset = `${length * (1 - progress)}`;
-          }
+      // Let GSAP own the transform. Writing style.transform by hand inside
+      // onUpdate skips GSAP's interpolation, which is what made this feel
+      // steppy, and it forces an un-hinted layout write on every frame.
+      track.style.willChange = "transform";
 
-          // Trigger panel animations based on progress thresholds
-          if (progress > 0.08) {
-            triggerPanel1();
-          }
-          if (progress > 0.42) {
-            triggerPanel2();
-          }
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top top",
+          // A rest tail at the end so the unpin does not snap straight into
+          // the next section.
+          end: () => `+=${distance() + window.innerHeight * 0.6}`,
+          pin: true,
+          scrub: 0.8,
+          anticipatePin: 1,
+          // Recompute distances on resize instead of keeping stale numbers.
+          invalidateOnRefresh: true,
+          onUpdate: (self) => {
+            if (self.progress > 0.08) triggerPanel1();
+            if (self.progress > 0.42) triggerPanel2();
+          },
         },
       });
 
+      tl.to(track, {
+        x: () => -distance(),
+        ease: "none",
+        force3D: true,
+        duration: 1,
+      });
+
+      // Draw the connector across the same scrub, on the same timeline, so the
+      // two can never drift out of step.
+      if (path) {
+        const length = path.getTotalLength();
+        gsap.set(path, { strokeDasharray: length, strokeDashoffset: length });
+        tl.to(path, { strokeDashoffset: 0, ease: "none", duration: 1 }, 0);
+      }
+
+      // The rest tail: nothing moves, the last panel simply holds.
+      tl.to({}, { duration: 0.28 });
+
       return () => {
-        pinTrigger.kill();
+        tl.scrollTrigger?.kill();
+        tl.kill();
+        track.style.willChange = "";
       };
     });
 

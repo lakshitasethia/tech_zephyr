@@ -22,9 +22,9 @@ in a corner. It is the thing you are looking at.
 | Tier | Name | Unlocks at | What changes |
 | --- | --- | --- | --- |
 | 0 | Cold Start | free | Near monochrome, one weak lamp |
-| 1 | Lamplight | 400 gold, level 2 | Amber returns, the ink deepens |
-| 2 | Bloom | 1,200 gold, level 5 | Sage and rose enter, embers drift |
-| 3 | Ascendant | 3,000 gold, level 9 | Full warmth and gold leaf |
+| 1 | Lamplight | 120 gold, level 1 | Amber returns, the ink deepens |
+| 2 | Bloom | 400 gold, level 3 | Sage and rose enter, embers drift |
+| 3 | Ascendant | 900 gold, level 6 | Full warmth and gold leaf |
 
 ---
 

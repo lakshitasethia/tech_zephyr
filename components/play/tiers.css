@@ -2,47 +2,50 @@
  * Theme tiers. The signature mechanic: the user buys the lighting of their own
  * world back, one tier at a time.
  *
- * These rules redefine the shared palette tokens inside .tier-root only, so the
- * landing page is untouched. Tier 0 is deliberately cold and close to
- * monochrome. Every later tier restores saturation and warmth. The transition
- * is animated so a purchase visibly changes the room.
+ * Tier 0 is deliberately unlit, but unlit is not the same as drab. It is a deep
+ * blue black with one small cold lamp, heavy vignette and visible grain. It
+ * should read as lonely and atmospheric, not as an unfinished grey dashboard,
+ * because it is the first thing anyone sees. Later tiers add warmth and
+ * saturation rather than adding polish.
  */
 
 .tier-root {
+  position: relative;
+  isolation: isolate;
   background-color: var(--void);
   transition:
-    background-color 900ms cubic-bezier(0.22, 1, 0.36, 1),
-    color 900ms cubic-bezier(0.22, 1, 0.36, 1);
+    background-color 1100ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 1100ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .tier-root * {
   transition:
-    background-color 700ms cubic-bezier(0.22, 1, 0.36, 1),
-    color 700ms cubic-bezier(0.22, 1, 0.36, 1),
-    border-color 700ms cubic-bezier(0.22, 1, 0.36, 1);
+    background-color 800ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 800ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 800ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* ---- Tier 0. Cold Start. One weak lamp, almost no colour. ---- */
+/* ---- Tier 0. Cold Start. One weak lamp, no warmth. ---- */
 .tier-root[data-tier="0"] {
-  --void: #08090C;
-  --ink: #101114;
-  --cream: #C9C7C2;
-  --muted: #6B6A67;
-  --amber: #9A8A72;
-  --gold: #A8998A;
-  --sage: #7B827C;
-  --rose: #8A7B78;
-  --steel: #767C86;
+  --void: #070A10;
+  --ink: #0E141E;
+  --cream: #C4CAD3;
+  --muted: #6F7885;
+  --amber: #9A907E;
+  --gold: #A79C88;
+  --sage: #74827A;
+  --rose: #8B7B79;
+  --steel: #6E7A8C;
 }
 
 /* ---- Tier 1. Lamplight. Amber returns, the ink deepens. ---- */
 .tier-root[data-tier="1"] {
   --void: #06070B;
   --ink: #0D1320;
-  --cream: #E6E1D8;
-  --muted: #8E877D;
-  --amber: #D9924A;
-  --gold: #EBAE61;
+  --cream: #E8E3DA;
+  --muted: #97907F;
+  --amber: #DE9750;
+  --gold: #EFB265;
   --sage: #7E9A83;
   --rose: #B47E74;
   --steel: #74849F;
@@ -52,8 +55,8 @@
 .tier-root[data-tier="2"] {
   --void: #07080E;
   --ink: #121A2B;
-  --cream: #F0EAE0;
-  --muted: #9A9389;
+  --cream: #F2ECE2;
+  --muted: #A79F92;
   --amber: #F0A44C;
   --gold: #FFC46B;
   --sage: #8FAE93;
@@ -66,7 +69,7 @@
   --void: #0B0A0D;
   --ink: #1C1722;
   --cream: #FBF6EC;
-  --muted: #B2A794;
+  --muted: #BCB1A0;
   --amber: #FFB45E;
   --gold: #FFD489;
   --sage: #A3C4A6;
@@ -74,29 +77,86 @@
   --steel: #93A6CC;
 }
 
-/* A faint warm bloom that grows with the tier, so the page itself feels lit
-   rather than just recoloured. */
+/*
+ * Atmosphere. Present at every tier, including tier 0. This is what stops the
+ * dashboard reading as a spreadsheet: a lamp pool top right, a cool counter
+ * light bottom left, a vignette, and grain over the top.
+ */
 .tier-root::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  transition: opacity 1100ms cubic-bezier(0.22, 1, 0.36, 1);
+  background:
+    radial-gradient(
+      64rem 40rem at 82% -6%,
+      color-mix(in srgb, var(--amber) 26%, transparent),
+      transparent 68%
+    ),
+    radial-gradient(
+      44rem 30rem at 2% 104%,
+      color-mix(in srgb, var(--steel) 16%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      120% 90% at 50% 45%,
+      transparent 42%,
+      color-mix(in srgb, var(--void) 82%, transparent) 100%
+    );
+}
+
+/* The lamp is weak at tier 0 and full by tier 3. */
+.tier-root[data-tier="0"]::before { opacity: 0.42; }
+.tier-root[data-tier="1"]::before { opacity: 0.72; }
+.tier-root[data-tier="2"]::before { opacity: 0.88; }
+.tier-root[data-tier="3"]::before { opacity: 1; }
+
+/* Film grain. A tiny inline SVG turbulence, tiled. Costs nothing. */
+.tier-root::after {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  opacity: 0;
-  transition: opacity 900ms cubic-bezier(0.22, 1, 0.36, 1);
-  background:
-    radial-gradient(70rem 40rem at 78% -10%, color-mix(in srgb, var(--amber) 22%, transparent), transparent 70%),
-    radial-gradient(48rem 32rem at 4% 106%, color-mix(in srgb, var(--sage) 14%, transparent), transparent 72%);
+  opacity: 0.055;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
 }
 
-.tier-root[data-tier="1"]::before { opacity: 0.45; }
-.tier-root[data-tier="2"]::before { opacity: 0.75; }
-.tier-root[data-tier="3"]::before { opacity: 1; }
+/*
+ * Purchase flash. Fired when a tier is bought, so the world visibly changes
+ * rather than silently recolouring.
+ */
+.tier-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    60rem 60rem at 50% 50%,
+    color-mix(in srgb, var(--gold) 70%, transparent),
+    transparent 62%
+  );
+  animation: tier-bloom 1500ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes tier-bloom {
+  0% { opacity: 0; transform: scale(0.35); }
+  22% { opacity: 0.85; }
+  100% { opacity: 0; transform: scale(1.6); }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .tier-root,
   .tier-root *,
   .tier-root::before {
     transition-duration: 0.01ms !important;
+  }
+  .tier-flash {
+    animation: none;
+    opacity: 0;
   }
 }
