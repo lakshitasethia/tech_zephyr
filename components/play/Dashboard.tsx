@@ -1,7 +1,12 @@
 "use client";
 
 import { useOptimistic, useRef, useState, useTransition } from "react";
-import { completeQuest, createQuest, deleteQuest } from "@/lib/actions/quests";
+import {
+  completeQuest,
+  createQuest,
+  deleteQuest,
+  updateQuest,
+} from "@/lib/actions/quests";
 import { purchaseItem } from "@/lib/actions/shop";
 import {
   ATTRIBUTE_LABEL,
@@ -47,6 +52,12 @@ export default function Dashboard(props: Props) {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [celebration, setCelebration] = useState<number | null>(null);
   const [flash, setFlash] = useState(0);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [draft, setDraft] = useState<{
+    title: string;
+    attribute: AttributeCode;
+    difficulty: Difficulty;
+  }>({ title: "", attribute: "discipline", difficulty: "normal" });
   const [pending, startTransition] = useTransition();
   const toastId = useRef(0);
 
@@ -160,6 +171,41 @@ export default function Dashboard(props: Props) {
       }
       setQuests((prev) => [res.data, ...prev]);
       toast("Quest added");
+    });
+  }
+
+  function beginEdit(quest: Quest) {
+    setEditingId(quest.id);
+    setDraft({
+      title: quest.title,
+      attribute: quest.attribute,
+      difficulty: quest.difficulty,
+    });
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+  }
+
+  function saveEdit(quest: Quest) {
+    const title = draft.title.trim();
+    if (!title) {
+      toast("Give the quest a name.", "bad");
+      return;
+    }
+    startTransition(async () => {
+      const res = await updateQuest(quest.id, {
+        title,
+        attribute: draft.attribute,
+        difficulty: draft.difficulty,
+      });
+      if (!res.ok) {
+        toast(res.error, "bad");
+        return;
+      }
+      setQuests((prev) => prev.map((q) => (q.id === quest.id ? res.data : q)));
+      setEditingId(null);
+      toast("Quest updated");
     });
   }
 
@@ -349,29 +395,108 @@ export default function Dashboard(props: Props) {
                 {active.map((q) => (
                   <li
                     key={q.id}
-                    className="group flex items-center gap-3 bg-[var(--ink)] px-4 py-3"
+                    className="group flex flex-wrap items-center gap-3 bg-[var(--ink)] px-4 py-3"
                   >
-                    <button
-                      onClick={() => onComplete(q)}
-                      disabled={pending}
-                      aria-label={`Complete ${q.title}`}
-                      className="h-5 w-5 shrink-0 border-2 border-[var(--muted)]/50 transition-colors hover:border-[var(--sage)] hover:bg-[var(--sage)]/30"
-                    />
-                    <span className="flex-1 text-[var(--cream)]">{q.title}</span>
-                    <span className="font-micro hidden text-[var(--muted)] sm:inline">
-                      {ATTRIBUTE_LABEL[q.attribute]}
-                    </span>
-                    <span className="font-micro tabular-nums text-[var(--amber)]">
-                      +{Math.floor(BASE_XP[q.difficulty] * mult)}
-                    </span>
-                    <button
-                      onClick={() => onDelete(q)}
-                      disabled={pending}
-                      aria-label={`Delete ${q.title}`}
-                      className="font-micro text-[var(--muted)]/60 opacity-0 transition-opacity hover:text-[var(--rose)] focus-visible:opacity-100 group-hover:opacity-100"
-                    >
-                      Del
-                    </button>
+                    {editingId === q.id ? (
+                      <>
+                        <input
+                          id={`edit-title-${q.id}`}
+                          type="text"
+                          value={draft.title}
+                          maxLength={140}
+                          autoFocus
+                          aria-label="Edit quest name"
+                          onChange={(e) =>
+                            setDraft((d) => ({ ...d, title: e.target.value }))
+                          }
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") saveEdit(q);
+                            if (e.key === "Escape") cancelEdit();
+                          }}
+                          className="min-w-40 flex-1 bg-[var(--void)] px-2 py-1 text-[var(--cream)] outline-none"
+                        />
+                        <select
+                          aria-label="Edit attribute"
+                          value={draft.attribute}
+                          onChange={(e) =>
+                            setDraft((d) => ({
+                              ...d,
+                              attribute: e.target.value as AttributeCode,
+                            }))
+                          }
+                          className="font-micro bg-[var(--void)] px-2 py-1 text-[var(--muted)] outline-none"
+                        >
+                          {ATTRIBUTES.map((a) => (
+                            <option key={a} value={a}>
+                              {ATTRIBUTE_LABEL[a]}
+                            </option>
+                          ))}
+                        </select>
+                        <select
+                          aria-label="Edit difficulty"
+                          value={draft.difficulty}
+                          onChange={(e) =>
+                            setDraft((d) => ({
+                              ...d,
+                              difficulty: e.target.value as Difficulty,
+                            }))
+                          }
+                          className="font-micro bg-[var(--void)] px-2 py-1 text-[var(--muted)] outline-none"
+                        >
+                          {DIFFICULTIES.map((d) => (
+                            <option key={d} value={d}>
+                              {DIFFICULTY_LABEL[d]} · {BASE_XP[d]}xp
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          onClick={() => saveEdit(q)}
+                          disabled={pending}
+                          className="font-micro bg-[var(--amber)] px-3 py-1 text-[var(--void)]"
+                        >
+                          Save
+                        </button>
+                        <button
+                          onClick={cancelEdit}
+                          disabled={pending}
+                          className="font-micro text-[var(--muted)] hover:text-[var(--cream)]"
+                        >
+                          Cancel
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => onComplete(q)}
+                          disabled={pending}
+                          aria-label={`Complete ${q.title}`}
+                          className="h-5 w-5 shrink-0 border-2 border-[var(--muted)]/50 transition-colors hover:border-[var(--sage)] hover:bg-[var(--sage)]/30"
+                        />
+                        <span className="flex-1 text-[var(--cream)]">{q.title}</span>
+                        <span className="font-micro hidden text-[var(--muted)] sm:inline">
+                          {ATTRIBUTE_LABEL[q.attribute]}
+                        </span>
+                        <span className="font-micro tabular-nums text-[var(--amber)]">
+                          +{Math.floor(BASE_XP[q.difficulty] * mult)}
+                        </span>
+                        <button
+                          onClick={() => beginEdit(q)}
+                          disabled={pending}
+                          aria-label={`Edit ${q.title}`}
+                          className="font-micro text-[var(--muted)]/60 transition-opacity hover:text-[var(--amber)] focus-visible:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => onDelete(q)}
+                          disabled={pending}
+                          aria-label={`Delete ${q.title}`}
+                          className="font-micro text-[var(--muted)]/60 transition-opacity hover:text-[var(--rose)] focus-visible:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
+                        >
+                          Del
+                        </button>
+                      </>
+                    )}
                   </li>
                 ))}
               </ul>
