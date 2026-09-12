@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Preloader } from "@/components/landing/Preloader";
-import { Cinematic } from "@/components/landing/Cinematic";
+import { IntroSequence } from "@/components/landing/IntroSequence";
 import { Navbar } from "@/components/landing/Navbar";
 import { Hero } from "@/components/landing/Hero";
 import { HowItWorks } from "@/components/landing/HowItWorks";
@@ -14,13 +13,16 @@ import { Footer } from "@/components/landing/Footer";
 import { initSmoothScroll, initBackgroundTransitions, initScrollVelocitySkew } from "@/lib/animations/gsapSetup";
 
 export default function LandingPage() {
-  const [preloaderDone, setPreloaderDone] = useState(false);
-  const [cinematicDone, setCinematicDone] = useState(false);
+  const [introDone, setIntroDone] = useState(false);
 
   useEffect(() => {
-    // Check if cinematic was previously seen in this session
-    if (typeof window !== "undefined" && sessionStorage.getItem("liferpg_cinematic_seen") === "true") {
-      setCinematicDone(true);
+    // Check if intro was previously seen in this session
+    if (typeof window !== "undefined") {
+      try {
+        if (sessionStorage.getItem("liferpg_cinematic_seen") === "true") {
+          setIntroDone(true);
+        }
+      } catch {}
     }
   }, []);
 
@@ -38,14 +40,9 @@ export default function LandingPage() {
 
   return (
     <main className="relative min-h-screen text-cream overflow-x-hidden selection:bg-amber selection:text-void">
-      {/* 0. Preloader */}
-      {!preloaderDone && (
-        <Preloader onComplete={() => setPreloaderDone(true)} />
-      )}
-
-      {/* 1. Cinematic Opening (5s, skippable) */}
-      {preloaderDone && !cinematicDone && (
-        <Cinematic onComplete={() => setCinematicDone(true)} />
+      {/* Intro Sequence (Preloader -> Press to Begin -> Typewriter -> Hero) */}
+      {!introDone && (
+        <IntroSequence onComplete={() => setIntroDone(true)} />
       )}
 
       {/* 2. Navbar */}

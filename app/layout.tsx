@@ -49,6 +49,14 @@ export default function RootLayout({
     >
       <head>
         <meta name="theme-color" content="#06070B" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(sessionStorage.getItem("liferpg_cinematic_seen")==="true"){document.documentElement.classList.add("skip-intro");}}catch(e){}`,
+          }}
+        />
+        <noscript>
+          <style>{`#intro-overlay{display:none!important;}`}</style>
+        </noscript>
       </head>
       <body className="antialiased selection:bg-amber selection:text-void">
         {/* Dynamic interpolated background layer */}

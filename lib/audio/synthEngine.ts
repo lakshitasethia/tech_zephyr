@@ -85,38 +85,3 @@ export function playThunk(): void {
   } catch {}
 }
 
-/** Mechanical drop thunk sound */
-export function playDropThunk(): void {
-  if (!_ctx || !_masterGain) return;
-  try {
-    const osc = _ctx.createOscillator();
-    const gain = _ctx.createGain();
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(180, _ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(60, _ctx.currentTime + 0.08);
-    gain.gain.setValueAtTime(0.18, _ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, _ctx.currentTime + 0.12);
-    osc.connect(gain);
-    gain.connect(_masterGain);
-    osc.start(_ctx.currentTime);
-    osc.stop(_ctx.currentTime + 0.15);
-  } catch {}
-}
-
-/** Filament hum - low sine wave that fades in */
-export function playFilamentHum(durationSec: number = 1.5): void {
-  if (!_ctx || !_masterGain) return;
-  try {
-    const osc = _ctx.createOscillator();
-    const gain = _ctx.createGain();
-    osc.type = "sine";
-    osc.frequency.value = 120;
-    gain.gain.setValueAtTime(0, _ctx.currentTime);
-    gain.gain.linearRampToValueAtTime(0.06, _ctx.currentTime + durationSec * 0.6);
-    gain.gain.linearRampToValueAtTime(0, _ctx.currentTime + durationSec);
-    osc.connect(gain);
-    gain.connect(_masterGain);
-    osc.start(_ctx.currentTime);
-    osc.stop(_ctx.currentTime + durationSec + 0.1);
-  } catch {}
-}

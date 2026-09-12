@@ -160,6 +160,11 @@ input:focus-visible,
   width: 100%;
 }
 
+/* Immediate skip if intro was already seen this session */
+html.skip-intro #intro-overlay {
+  display: none !important;
+}
+
 /* Reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -169,3 +174,4 @@ input:focus-visible,
     scroll-behavior: auto !important;
   }
 }
+
