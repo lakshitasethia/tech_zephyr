@@ -18,7 +18,7 @@ number in the corner. It is the thing you are looking at.
 
 <br/>
 
-### **[ Add the deployed URL here before submitting &rarr; ]()**
+### **[ Open Lanternkeep live &rarr; ](https://lanternkeep-teal.vercel.app)**
 
 <br/>
 
@@ -429,6 +429,6 @@ Lanternkeep is built on one idea: **the work you already do should show up somew
 
 <br/>
 
-### **[ Add the deployed URL here before submitting → ]()**
+### **[ Open Lanternkeep live → ](https://lanternkeep-teal.vercel.app)**
 
 </div>
