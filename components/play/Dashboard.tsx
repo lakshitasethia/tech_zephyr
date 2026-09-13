@@ -87,6 +87,10 @@ export default function Dashboard(props: Props) {
   const mult = momentum(profile.streak_current);
   const tier = profile.theme_tier;
   const hasQuill = owned.has("trinket_quill");
+  // Lift: the second lighting axis. Rises with every item owned, not just the
+  // three tiers, so an 80 gold trinket still visibly changes the world.
+  const allOwned = props.shop.length > 0 && owned.size >= props.shop.length;
+  const lift = props.shop.length ? owned.size / props.shop.length : 0;
 
   // Throttled so holding a key down does not machine-gun the speaker.
   const lastTick = useRef(0);
@@ -251,10 +255,18 @@ export default function Dashboard(props: Props) {
   }
 
   return (
-    <div data-tier={tier} className="tier-root min-h-screen">
+    <div
+      data-tier={tier}
+      className="tier-root min-h-screen"
+      // Must be a string. React silently drops a numeric value for a custom
+      // property, which is why this looked wired up but never applied.
+      style={{ "--lift": lift.toFixed(4) } as React.CSSProperties}
+    >
       {celebration !== null && (
         <Celebration level={celebration} onDone={() => setCelebration(null)} />
       )}
+
+      <div className="tier-lift" aria-hidden="true" />
 
       {flash > 0 && <div key={flash} className="tier-flash" aria-hidden="true" />}
 
@@ -579,6 +591,22 @@ export default function Dashboard(props: Props) {
             Gold comes from real work. Tier items change the lighting of the whole
             application, permanently.
           </p>
+
+          {allOwned && (
+            <div className="mt-5 bg-[var(--ink)] p-6">
+              <p className="font-micro text-[var(--gold)]">The lantern is full</p>
+              <p className="font-display mt-2 text-2xl text-[var(--cream)]">
+                You have bought back all the light
+              </p>
+              <p className="font-body mt-3 text-sm">
+                Every tier is unlocked and every mark is earned. There is nothing
+                left in the shop, and that is the end of the shop rather than the
+                end of the game. Your level has no ceiling, the curve simply keeps
+                getting steeper. Your streak, your four attributes and your
+                chronicle all carry on from here.
+              </p>
+            </div>
+          )}
 
           <ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {props.shop.map((item) => {

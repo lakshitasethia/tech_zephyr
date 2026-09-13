@@ -120,6 +120,25 @@ input:focus-visible,
   user-select: none;
 }
 
+/* Disabled state must live here, not as a Tailwind disabled: utility.
+   .pixel-btn-amber is unlayered, and unlayered CSS outranks Tailwind's
+   layered utilities, so disabled:bg-* silently lost and "Owned" rendered
+   as a bright, pressable looking button. */
+.pixel-btn-amber:disabled,
+.pixel-btn-amber[disabled] {
+  background-color: color-mix(in srgb, var(--muted) 22%, transparent);
+  color: var(--muted);
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.pixel-btn-amber:disabled:hover,
+.pixel-btn-amber[disabled]:hover {
+  transform: none;
+  box-shadow: none;
+}
+
 .pixel-btn-amber:hover {
   transform: translate(-2px, -2px);
   box-shadow: 2px 2px 0px 0px var(--gold);
