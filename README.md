@@ -64,9 +64,9 @@ The shop does not sell cosmetics for an avatar. It sells the lighting of the app
 | Tier | Name | Unlocks at | What changes |
 | --- | --- | --- | --- |
 | 0 | Cold Start | free | Deep blue-black, one weak lamp, heavy vignette |
-| 1 | Lamplight | 120 gold, level 1 | Amber returns, the ink deepens |
-| 2 | Bloom | 400 gold, level 3 | Sage and rose enter, embers drift |
-| 3 | Ascendant | 900 gold, level 6 | Full warmth and gold leaf |
+| 1 | Lamplight | 25 gold, level 1 | Amber returns, the ink deepens |
+| 2 | Bloom | 75 gold, level 2 | Sage and rose enter, embers drift |
+| 3 | Ascendant | 150 gold, level 3 | Full warmth and gold leaf |
 
 Tier 0 is deliberately unlit, but unlit is not the same as unfinished. It is atmospheric and lonely, with a
 lamp pool, a cool counter-light, a vignette and film grain, all of which intensify as tiers unlock. Buying
@@ -74,8 +74,16 @@ a tier fires a gold bloom across the screen and the palette transitions over 1.1
 event rather than a silent recolour.
 
 The tiers were originally priced at 400 / 1200 / 3000. A handful of quests earns roughly 40 to 160 gold, so
-nobody ever reached one and the signature mechanic was never actually seen. They are now priced so tier 1
-lands after about three quests. **A mechanic nobody reaches is not a feature.**
+nobody ever reached one and the signature mechanic was never actually seen. **A mechanic nobody reaches is
+not a feature**, so they were repriced twice: once to make them reachable at all, and again so that a first
+session, and a short walkthrough video, can actually show the world changing. One epic quest yields about 39
+gold, which buys tier 1 outright. Every item now sits between 10 and 150 gold.
+
+Beyond the tiers there is a second, continuous axis. **Lift** rises with every one of the seven items owned,
+not just the three tiers, so an inexpensive trinket still visibly brightens the world. Tier decides the
+character of the light; lift decides how much of it there is. The amounts are tuned so tier 0 with everything
+bought is still darker than tier 1 with nothing bought, which keeps the tiers meaningful and keeps body text
+above its contrast floor.
 
 ---
 

@@ -576,3 +576,17 @@ update public.shop_items set cost_gold =  40, min_level = 1 where code = 'badge_
 update public.shop_items set cost_gold = 150, min_level = 2 where code = 'badge_ironweek';
 update public.shop_items set cost_gold =  80, min_level = 1 where code = 'trinket_moth';
 update public.shop_items set cost_gold = 200, min_level = 3 where code = 'trinket_quill';
+
+-- ---------------------------------------------------------------------------
+-- Demo friendly pricing. One epic quest yields about 39 gold, so tier 1 lands
+-- after a single completion and all three tiers inside a short session. Level
+-- gates lowered to match, so nothing is blocked behind grinding that a three
+-- minute walkthrough cannot show. Everything sits between 1 and 300 gold.
+-- ---------------------------------------------------------------------------
+update public.shop_items set cost_gold =  25, min_level = 1 where code = 'tier_lamplight';
+update public.shop_items set cost_gold =  75, min_level = 2 where code = 'tier_bloom';
+update public.shop_items set cost_gold = 150, min_level = 3 where code = 'tier_ascendant';
+update public.shop_items set cost_gold =  10, min_level = 1 where code = 'badge_firstblood';
+update public.shop_items set cost_gold =  60, min_level = 2 where code = 'badge_ironweek';
+update public.shop_items set cost_gold =  30, min_level = 1 where code = 'trinket_moth';
+update public.shop_items set cost_gold = 100, min_level = 2 where code = 'trinket_quill';

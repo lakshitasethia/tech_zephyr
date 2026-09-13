@@ -63,8 +63,8 @@ export const ShopTiers: React.FC = () => {
     {
       tier: "TIER 1",
       name: "LAMPLIGHT",
-      cost: "120 GOLD",
-      costNum: 120,
+      cost: "25 GOLD",
+      costNum: 25,
       desc: "Amber enters. Ink deepens. Quests begin to glow.",
       unlocked: true,
       bgTint: "#131A2C",
@@ -74,8 +74,8 @@ export const ShopTiers: React.FC = () => {
     {
       tier: "TIER 2",
       name: "BLOOM",
-      cost: "400 GOLD",
-      costNum: 400,
+      cost: "75 GOLD",
+      costNum: 75,
       desc: "Sage and rose accents appear. Ambient embers drift.",
       unlocked: false,
       bgTint: "#1E1B2A",
@@ -85,8 +85,8 @@ export const ShopTiers: React.FC = () => {
     {
       tier: "TIER 3",
       name: "ASCENDANT",
-      cost: "900 GOLD",
-      costNum: 900,
+      cost: "150 GOLD",
+      costNum: 150,
       desc: "Full warmth. Gold leaf. Volumetric light on every surface.",
       unlocked: false,
       bgTint: "#2C2128",
