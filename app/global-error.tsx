@@ -41,7 +41,7 @@ export default function GlobalError({
             The lantern went out
           </p>
           <h1 style={{ margin: "8px 0 0", fontSize: "30px", lineHeight: 1.15 }}>
-            Life RPG could not start
+            Lanternkeep could not start
           </h1>
           <p
             style={{

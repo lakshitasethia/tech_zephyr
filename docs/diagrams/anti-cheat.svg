@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 620" width="1000" height="620" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">
+  <rect width="1000" height="620" fill="#06070B"/>
+  <defs>
+    <marker id="blk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#C98A7F"/>
+    </marker>
+    <marker id="ok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#8FAE93"/>
+    </marker>
+  </defs>
+
+  <text x="40" y="46" fill="#F0A44C" font-size="13" letter-spacing="3">THREE INDEPENDENT LAYERS  ·  ANY ONE FAILING DOES NOT OPEN THE OTHERS</text>
+  <line x1="40" y1="62" x2="960" y2="62" stroke="#1C2432"/>
+
+  <!-- attacker -->
+  <rect x="40" y="96" width="210" height="128" fill="#160F12" stroke="#3A2226"/>
+  <text x="60" y="124" fill="#C98A7F" font-size="13">ATTACKER</text>
+  <text x="60" y="150" fill="#9D9385" font-size="11">devtools open</text>
+  <text x="60" y="170" fill="#9D9385" font-size="11">holds a valid session</text>
+  <text x="60" y="190" fill="#9D9385" font-size="11">can forge any request</text>
+  <text x="60" y="212" fill="#6F7885" font-size="10">wants: level 99, infinite gold</text>
+
+  <!-- L1 -->
+  <rect x="300" y="88" width="660" height="112" fill="#0D1320" stroke="#1C2432"/>
+  <text x="322" y="116" fill="#F2ECE2" font-size="13">LAYER 1  ·  THE CLIENT CANNOT NAME A REWARD</text>
+  <text x="322" y="142" fill="#8FAE93" font-size="11">complete_quest(p_quest_id uuid, p_source completion_source)</text>
+  <text x="322" y="164" fill="#9D9385" font-size="11">That is the whole input surface. XP comes from the quest row's own stored difficulty</text>
+  <text x="322" y="182" fill="#9D9385" font-size="11">and from base_xp() and momentum(), both server side constants.</text>
+
+  <!-- L2 -->
+  <rect x="300" y="216" width="660" height="132" fill="#0D1320" stroke="#1C2432"/>
+  <text x="322" y="244" fill="#F2ECE2" font-size="13">LAYER 2  ·  THE COLUMNS ARE NOT WRITABLE</text>
+  <text x="322" y="270" fill="#8FAE93" font-size="11">grant update (display_name) on public.profiles to authenticated;</text>
+  <text x="322" y="292" fill="#9D9385" font-size="11">One column. total_xp, gold and theme_tier are refused at the privilege level,</text>
+  <text x="322" y="310" fill="#9D9385" font-size="11">before RLS is even consulted. attributes, completions, events and inventory</text>
+  <text x="322" y="328" fill="#9D9385" font-size="11">are select only for every role.</text>
+
+  <!-- L3 -->
+  <rect x="300" y="364" width="660" height="112" fill="#0D1320" stroke="#1C2432"/>
+  <text x="322" y="392" fill="#F2ECE2" font-size="13">LAYER 3  ·  LEVEL IS DERIVED, NEVER STORED</text>
+  <text x="322" y="418" fill="#8FAE93" font-size="11">level_from_xp(total_xp)  ·  computed on read</text>
+  <text x="322" y="440" fill="#9D9385" font-size="11">There is no level column to forge, and a stored level can never drift away</text>
+  <text x="322" y="458" fill="#9D9385" font-size="11">from the experience that earned it.</text>
+
+  <!-- blocked arrows -->
+  <line x1="250" y1="144" x2="292" y2="144" stroke="#C98A7F" stroke-width="1.5" marker-end="url(#blk)"/>
+  <line x1="250" y1="282" x2="292" y2="282" stroke="#C98A7F" stroke-width="1.5" marker-end="url(#blk)"/>
+  <line x1="250" y1="420" x2="292" y2="420" stroke="#C98A7F" stroke-width="1.5" marker-end="url(#blk)"/>
+
+  <!-- guards -->
+  <rect x="40" y="500" width="450" height="86" fill="#0B1018" stroke="#1C2432"/>
+  <text x="62" y="528" fill="#9D9385" font-size="12">SMALLER GUARDS</text>
+  <text x="62" y="552" fill="#6F7885" font-size="10">unique index (quest_id, completed_on) · no double banking per day</text>
+  <text x="62" y="570" fill="#6F7885" font-size="10">SELECT FOR UPDATE on profiles · no concurrent double level up</text>
+
+  <rect x="510" y="500" width="450" height="86" fill="#0B1018" stroke="#2A3A2C"/>
+  <text x="532" y="528" fill="#8FAE93" font-size="12">WHAT AN ATTACKER CAN STILL DO</text>
+  <text x="532" y="552" fill="#6F7885" font-size="10">Complete a quest they already own, once, on the correct day,</text>
+  <text x="532" y="570" fill="#6F7885" font-size="10">for exactly the reward its stored difficulty allows. Nothing more.</text>
+</svg>

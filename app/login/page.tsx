@@ -3,7 +3,7 @@ import AuthForm from "@/components/auth/AuthForm";
 
 export const metadata: Metadata = {
   title: "Sign in",
-  description: "Sign in to Life RPG and pick up where your character left off.",
+  description: "Sign in to Lanternkeep and pick up where your character left off.",
 };
 
 export default function LoginPage() {

@@ -6,7 +6,6 @@ import { Moth } from "@/components/sprites/Moth";
 import { EmberCanvas } from "@/components/canvas/EmberCanvas";
 import { attachMagneticHover, smoothScrollTo } from "@/lib/animations/gsapSetup";
 import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { initCharacterReveal } from "@/lib/animations/textReveals";
 
 export const FinalCTA: React.FC = () => {

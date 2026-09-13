@@ -6,7 +6,6 @@ import { Moth } from "@/components/sprites/Moth";
 import { EmberCanvas } from "@/components/canvas/EmberCanvas";
 import { attachMagneticHover, smoothScrollTo } from "@/lib/animations/gsapSetup";
 import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 export const Hero: React.FC = () => {
   const questBtnRef = useRef<HTMLButtonElement | null>(null);
@@ -184,7 +183,7 @@ export const Hero: React.FC = () => {
           <p className="font-body mb-10">
             You are already grinding. Waking up early, reading the hard chapter,
             going back to the gym after a week off. The problem is that none of
-            it shows up anywhere. Life RPG gives that work a number, a level, and
+            it shows up anywhere. Lanternkeep gives that work a number, a level, and
             a world that lights up when you do it.
           </p>
 

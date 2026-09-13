@@ -4,7 +4,7 @@ import AuthForm from "@/components/auth/AuthForm";
 export const metadata: Metadata = {
   title: "Create your character",
   description:
-    "Start Life RPG. Turn real tasks into quests, earn gold, and buy the light back.",
+    "Start Lanternkeep. Turn real tasks into quests, earn gold, and buy the light back.",
 };
 
 export default function SignupPage() {

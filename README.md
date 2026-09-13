@@ -1,12 +1,16 @@
 <div align="center">
 
-# Life RPG
+<img src="docs/assets/screenshots/landing-hero.jpg" alt="Lanternkeep landing page" width="900"/>
 
-### A productivity app where the world starts dark and you buy the light back
+<br/><br/>
+
+# Lanternkeep
+
+### A Life RPG where the world starts dark and you buy the light back
 
 <br/>
 
-**Most gamified to-do apps sell you a hat for your character. Life RPG sells you the lighting of the room you are standing in.**
+**Most gamified to-do apps sell you a hat for your character. Lanternkeep sells you the lighting of the room you are standing in.**
 
 A new account opens in near-monochrome with one weak lamp. Gold earned from real completed work
 unlocks visual tiers that permanently warm and illuminate the entire interface. Progression is not a
@@ -14,7 +18,7 @@ number in the corner. It is the thing you are looking at.
 
 <br/>
 
-### **[ Add the deployed URL here before submitting → ]()**
+### **[ Add the deployed URL here before submitting &rarr; ]()**
 
 <br/>
 
@@ -24,12 +28,13 @@ number in the corner. It is the thing you are looking at.
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-1f1f1f?style=flat-square)
 ![GSAP](https://img.shields.io/badge/GSAP-ScrollTrigger-1f1f1f?style=flat-square)
 ![Supabase](https://img.shields.io/badge/Supabase-Postgres_·_Auth_·_RLS-1f1f1f?style=flat-square)
+![Audio](https://img.shields.io/badge/Audio-fully_synthesized-1f1f1f?style=flat-square)
 
 </div>
 
 <br/>
 
-**Contents** · [The problem](#the-problem) · [Buying the light back](#buying-the-light-back) · [Core systems](#core-systems) · [Architecture](#how-life-rpg-is-built) · [Anti-cheat](#how-cheating-is-prevented) · [Progression maths](#progression-maths) · [Database](#database-schema) · [Running it locally](#running-it-locally) · [Deploying](#deploying) · [Accessibility](#accessibility) · [Verified state](#verified-state)
+**Contents** · [The problem](#the-problem) · [Buying the light back](#buying-the-light-back) · [Core systems](#core-systems) · [Architecture](#how-lanternkeep-is-built) · [Anti-cheat](#how-cheating-is-prevented) · [Progression maths](#progression-maths) · [Database](#database-schema) · [Running it locally](#running-it-locally) · [Deploying](#deploying) · [Accessibility](#accessibility) · [Inside Lanternkeep](#inside-lanternkeep) · [Verified state](#verified-state)
 
 ---
 
@@ -114,7 +119,11 @@ each have their own cue. All of it honours one mute switch, defaults to silence,
 
 ---
 
-# How Life RPG Is Built
+# How Lanternkeep Is Built
+
+<p align="center">
+  <img src="docs/diagrams/architecture.svg" width="1000" alt="Lanternkeep request path"/>
+</p>
 
 A single Next.js application on the App Router. Server Components read from Postgres through
 `@supabase/ssr`, Server Actions perform mutations, and Row Level Security scopes every query at the database
@@ -183,6 +192,10 @@ docs/                         requirements, research, design notes, agent briefs
 
 The brief requires "a secure backend to prevent users from easily cheating their stats". Three independent
 layers do that. Any one of them failing does not open the others.
+
+<p align="center">
+  <img src="docs/diagrams/anti-cheat.svg" width="1000" alt="The three anti-cheat layers"/>
+</p>
 
 ### 1. The client cannot name a reward
 
@@ -339,9 +352,9 @@ npm run dev
 
 ---
 
-# What Changes With Life RPG
+# What Changes With Lanternkeep
 
-| Ordinary to-do list | Life RPG |
+| Ordinary to-do list | Lanternkeep |
 | --- | --- |
 | A checkbox turns grey | The world you are looking at gets brighter |
 | Progress is a number you set yourself | Progress is computed server-side and cannot be forged |
@@ -353,6 +366,21 @@ npm run dev
 
 ---
 
+# Inside Lanternkeep
+
+<table>
+<tr>
+<td width="50%"><img src="docs/assets/screenshots/intro-typewriter.jpg" alt="The intro sequence"/><br/><sub><b>The opening</b> &middot; a loader, then two typed lines, then the world</sub></td>
+<td width="50%"><img src="docs/assets/screenshots/landing-tiers.jpg" alt="The visual progression section"/><br/><sub><b>The visual progression</b> &middot; the four tiers, cold to fully lit</sub></td>
+</tr>
+<tr>
+<td width="50%"><img src="docs/assets/screenshots/dashboard-tier0.jpg" alt="Dashboard at tier zero"/><br/><sub><b>Tier 0, Cold Start</b> &middot; where every new account begins</sub></td>
+<td width="50%"><img src="docs/assets/screenshots/shop.jpg" alt="The shop"/><br/><sub><b>The shop</b> &middot; gating by level and by gold, both enforced server side</sub></td>
+</tr>
+</table>
+
+---
+
 # Verified State
 
 Claims here are drawn from the running implementation. Where something is incomplete it is said so rather
@@ -360,14 +388,17 @@ than omitted.
 
 | Check | Result |
 | --- | --- |
-| Production build | `npm run build` passes; TypeScript clean with no errors |
+| Production build | `npm run build` passes; `tsc --noEmit` clean with no errors |
 | Progression maths | Verified against the live database: `level_from_xp` returns 1, 1, 2, 2, 3, 10 at 0, 99, 100, 299, 300 and 4500 XP |
 | Momentum | 1.00× at streak 0, 1.35× at 7, capped at 1.50× |
 | Full loop | Signup, add quest, complete, 150 × 1.05 = 157 XP and 39 gold, level 2, buy Lamplight, tier 1, hard refresh with all state intact |
 | Auth | Fresh signup, sign in, protected-route redirect and sign out all verified against the live database |
 | Security advisor | Clean, apart from the intentional finding that signed-in users may call the progression RPCs |
 | Responsiveness | No horizontal page scroll at 400px; every section carries a real gutter |
+| Routes | `/`, `/login`, `/signup`, `/robots.txt`, `/sitemap.xml`, `/icon`, `/opengraph-image` all 200; `/play` correctly 307s when signed out; an unknown path returns a real 404 |
+| Hydration | Clean console. The `<html>` element carries `suppressHydrationWarning` because a blocking script adds a class before React hydrates, which is deliberate |
 | Copy | No em dashes or en dashes anywhere in `app/`, `components/` or `lib/` |
+| Lint | `eslint` reports 5 errors and 1 warning, all from React Compiler's new `set-state-in-effect` and `refs` rules on landing page components. Every one is the standard read-a-browser-value-after-mount pattern, which is correct in context. They do not affect the build and are listed here rather than silenced. |
 
 **Known gaps, stated plainly.** The sound cues are verified as wired and error free but have not been
 listened to under automation, because a synthetic click is not a trusted user gesture and the AudioContext
@@ -394,7 +425,7 @@ and audio engine were built with Claude Opus 5. Competitive research is document
 
 <div align="center">
 
-Life RPG is built on one idea: **the work you already do should show up somewhere.**
+Lanternkeep is built on one idea: **the work you already do should show up somewhere.**
 
 <br/>
 

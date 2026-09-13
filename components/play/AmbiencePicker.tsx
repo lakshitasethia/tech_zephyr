@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 import {
   AMBIENCE_OPTIONS,
   getSavedAmbience,
@@ -15,24 +15,43 @@ import {
  * before a gesture anyway, but more importantly nobody wants a productivity app
  * making noise at them uninvited. The choice is remembered, so a returning user
  * who wants rain gets rain on their next click.
+ *
+ * The saved preference lives in localStorage, which the server cannot read, so
+ * it is pulled through useSyncExternalStore with an explicit server snapshot of
+ * "off". That is what keeps the server and client markup identical on the first
+ * paint. Reading it in an effect and calling setState would work too, but it
+ * causes a second render pass on every mount for a value that never changes.
  */
+
+const listeners = new Set<() => void>();
+
+function subscribe(onChange: () => void) {
+  listeners.add(onChange);
+  // Another tab changing the preference should update this one.
+  window.addEventListener("storage", onChange);
+  return () => {
+    listeners.delete(onChange);
+    window.removeEventListener("storage", onChange);
+  };
+}
+
+function notify() {
+  listeners.forEach((l) => l());
+}
+
 export default function AmbiencePicker() {
-  const [kind, setKind] = useState<AmbienceKind>("off");
-  const [restored, setRestored] = useState(false);
+  const kind = useSyncExternalStore<AmbienceKind>(
+    subscribe,
+    getSavedAmbience,
+    () => "off",
+  );
 
-  // Read the saved preference after mount. Reading localStorage during render
-  // would mismatch the server rendered markup.
-  useEffect(() => {
-    setKind(getSavedAmbience());
-    setRestored(true);
-  }, []);
-
-  function choose(next: AmbienceKind) {
-    setKind(next);
-    // This runs inside a change event, which counts as the user gesture the
-    // AudioContext needs.
+  const choose = useCallback((next: AmbienceKind) => {
+    // Runs inside a change event, which is the user gesture the AudioContext
+    // needs in order to start.
     setAmbience(next);
-  }
+    notify();
+  }, []);
 
   return (
     <label className="flex items-center gap-2">
@@ -42,7 +61,7 @@ export default function AmbiencePicker() {
       </span>
       <select
         id="ambience"
-        value={restored ? kind : "off"}
+        value={kind}
         onChange={(e) => choose(e.target.value as AmbienceKind)}
         className="font-micro cursor-pointer bg-transparent text-[var(--muted)] outline-none hover:text-[var(--cream)]"
       >

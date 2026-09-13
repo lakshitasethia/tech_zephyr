@@ -30,35 +30,36 @@ export const metadata: Metadata = {
   // ones. Without it Next warns and social scrapers get a relative path.
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Life RPG. Buy the Light Back",
+    default: "Lanternkeep. Buy the Light Back",
     // Sub pages set their own title and inherit this frame.
-    template: "%s | Life RPG",
+    template: "%s | Lanternkeep",
   },
   description:
-    "Life RPG turns real tasks into quests. Earn XP and gold from work you actually did, level four attributes, hold a streak, and buy the light back for a world that starts in the dark.",
-  applicationName: "Life RPG",
+    "Lanternkeep is a Life RPG. Turn real tasks into quests, earn XP and gold from work you actually did, level four attributes, hold a streak, and buy the light back for a world that starts in the dark.",
+  applicationName: "Lanternkeep",
   keywords: [
     "gamified to do list",
     "habit tracker",
     "RPG productivity app",
     "quest tracker",
     "XP task manager",
+    "Lanternkeep",
     "Life RPG",
   ],
-  authors: [{ name: "Life RPG" }],
-  creator: "Life RPG",
+  authors: [{ name: "Lanternkeep" }],
+  creator: "Lanternkeep",
   alternates: { canonical: "/" },
   openGraph: {
     type: "website",
-    siteName: "Life RPG",
+    siteName: "Lanternkeep",
     url: siteUrl,
-    title: "Life RPG. Buy the Light Back",
+    title: "Lanternkeep. Buy the Light Back",
     description:
       "Turn real tasks into quests. Earn gold from work you actually did, and buy the light back for a world that starts in the dark.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Life RPG. Buy the Light Back",
+    title: "Lanternkeep. Buy the Light Back",
     description:
       "Turn real tasks into quests. Earn gold from work you actually did, and buy the light back for a world that starts in the dark.",
   },
@@ -84,6 +85,11 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${pixelifySans.variable} ${silkscreen.variable} ${instrumentSans.variable}`}
+      // The blocking script below adds a "skip-intro" class to this element
+      // before React hydrates, so the server and client markup differ here by
+      // design. Without this, React logs a hydration mismatch on every load.
+      // Scoped to <html> only, so real mismatches deeper in the tree still warn.
+      suppressHydrationWarning
     >
       <head>
         <meta name="theme-color" content="#06070B" />

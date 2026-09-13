@@ -4,7 +4,7 @@ import { ImageResponse } from "next/og";
  * Social preview card, generated at build time rather than shipped as a file.
  * Drawn with the product's own palette so a shared link looks like the app.
  */
-export const alt = "Life RPG. Your life is already an RPG.";
+export const alt = "Lanternkeep. Your life is already an RPG.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -34,7 +34,7 @@ export default function OpengraphImage() {
               color: "#F0A44C",
             }}
           >
-            Life RPG
+            Lanternkeep
           </div>
         </div>
 

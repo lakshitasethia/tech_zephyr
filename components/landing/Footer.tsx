@@ -29,7 +29,7 @@ export const Footer: React.FC = () => {
                 aria-hidden="true"
               />
               <span className="font-display text-2xl sm:text-3xl font-bold text-cream">
-                LIFE RPG
+                LANTERNKEEP
               </span>
             </div>
             <p className="font-body text-muted max-w-[36ch]" style={{ fontSize: "15px" }}>
@@ -122,7 +122,7 @@ export const Footer: React.FC = () => {
             THE WORLD WAITS IN DARKNESS. DO NOT MISS A DAY.
           </div>
           <div className="font-micro text-muted tracking-micro" style={{ fontSize: "11px" }}>
-            LIFE RPG // MMXXVI
+            LANTERNKEEP // MMXXVI
           </div>
         </div>
       </div>

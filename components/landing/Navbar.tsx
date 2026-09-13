@@ -97,7 +97,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartQuest }) => {
         <a
           href="#"
           className="flex items-center gap-2.5 text-cream hover:text-amber transition-colors duration-150 focus-visible:outline-amber"
-          aria-label="Life RPG Home"
+          aria-label="Lanternkeep Home"
         >
           {/* 6px amber square bullet */}
           <span
@@ -106,7 +106,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartQuest }) => {
             aria-hidden="true"
           />
           <span className="font-display text-xl sm:text-2xl font-bold tracking-wider">
-            LIFE RPG
+            LANTERNKEEP
           </span>
         </a>
 
@@ -191,7 +191,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartQuest }) => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <span className="w-[6px] h-[6px] bg-amber inline-block" />
-            <span className="font-display text-xl font-bold">LIFE RPG</span>
+            <span className="font-display text-xl font-bold">LANTERNKEEP</span>
           </div>
           <button
             type="button"

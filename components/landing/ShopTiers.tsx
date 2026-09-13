@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { Lampbearer } from "@/components/sprites/Lampbearer";
 import { IdleOne } from "@/components/sprites/IdleOne";
-import { initCharacterReveal, initCounterTween } from "@/lib/animations/textReveals";
+import { initCharacterReveal } from "@/lib/animations/textReveals";
 
 interface TierInfo {
   tier: string;
@@ -63,8 +63,8 @@ export const ShopTiers: React.FC = () => {
     {
       tier: "TIER 1",
       name: "LAMPLIGHT",
-      cost: "400 GOLD",
-      costNum: 400,
+      cost: "120 GOLD",
+      costNum: 120,
       desc: "Amber enters. Ink deepens. Quests begin to glow.",
       unlocked: true,
       bgTint: "#131A2C",
@@ -74,8 +74,8 @@ export const ShopTiers: React.FC = () => {
     {
       tier: "TIER 2",
       name: "BLOOM",
-      cost: "1,200 GOLD",
-      costNum: 1200,
+      cost: "400 GOLD",
+      costNum: 400,
       desc: "Sage and rose accents appear. Ambient embers drift.",
       unlocked: false,
       bgTint: "#1E1B2A",
@@ -85,8 +85,8 @@ export const ShopTiers: React.FC = () => {
     {
       tier: "TIER 3",
       name: "ASCENDANT",
-      cost: "3,000 GOLD",
-      costNum: 3000,
+      cost: "900 GOLD",
+      costNum: 900,
       desc: "Full warmth. Gold leaf. Volumetric light on every surface.",
       unlocked: false,
       bgTint: "#2C2128",
